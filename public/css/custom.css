@@ -1,0 +1,161 @@
+/* NAVBAR */
+/* Apply margin to the logo container */
+.navbar-brand {
+    margin-left: 1rem; /* Add margin between the logo and the left screen edge */
+}
+
+/* Apply flexbox and add space between items in navbar */
+.custom-nav-links {
+    display: flex;           /* Turn navbar items into a flex container */
+    justify-content: center; /* Center the navbar items horizontally */
+    gap: 2rem;               /* Add space between the navbar items */
+}
+
+/* Ensure the search bar and cart are aligned to the right */
+.navbar-collapse .d-flex {
+    margin-left: auto;  /* Push the search bar and cart to the far right */
+}
+
+/* Apply margin to the cart icon container */
+.cart-icon {
+    margin-right: 1rem; /* Add margin between the cart icon and the screen edge */
+}
+
+/* HERO SECTION */
+/* Hero section with a two-column layout */
+.hero-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh; /* Full height of the screen */
+    overflow: hidden; /* Prevents child elements from spilling out */
+}
+
+/* Left section with flower frame */
+.flower-frame-container {
+    position: relative;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    top: -30px; /* Adjust the value to move it up */
+}
+
+.flower-frame {
+    width: 100%; /* Image takes full width of the container */
+    height: 100%; /* Image takes full height of the container */
+    object-fit: cover; /* Ensures the image covers the container */
+    object-position: center; /* Centers the image */
+}
+
+/* Right section with title and shop now button */
+.col-lg-6.d-flex {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+    padding-top: 100px; /* Adjust the value as needed to push it down */
+}
+
+/* Title styling */
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Shop now button styling */
+.shop-now-btn {
+    padding: 10px 20px;
+    background-color: #5a6e9f; /* Customize the color */
+    color: white;
+    font-size: 1.2rem;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.shop-now-btn:hover {
+    background-color: #3b4a71; /* Darker shade on hover */
+}
+
+/* COLOR PALETTE */
+/* NAVBAR */
+
+/* Transparent Navbar background */
+.navbar {
+    background-color: transparent !important;
+    box-shadow: none; /* Removes any shadow effect */
+}
+
+/* Navbar text color */
+.navbar-brand {
+    color: #B78D89; /* Dusty Mauve */
+}
+
+.navbar-nav .nav-link {
+    color: #B78D89; /* Dusty Mauve */
+}
+
+.navbar-nav .nav-link:hover {
+    color: #D6A14A; /* Soft Gold */
+}
+
+
+/* HERO SECTION */
+/* Body background color */
+body {
+    background-color: #f4f3f0; /* Soft neutral beige/ivory */
+    color: #333333; /* Dark gray font color for text */
+    font-family: Arial, sans-serif; /* Font family */
+}
+
+/* Style for headings */
+h1, h2, h3, h4, h5, h6 {
+    color: #333333; /* Font color for headings */
+}
+
+/* Style for links */
+a {
+    color: #8a5d4d; /* Accent color for links */
+    text-decoration: none; /* Remove underline */
+}
+
+a:hover {
+    color: #6c3b2e; /* Darker shade of the accent color on hover */
+}
+
+/* Button style */
+button, .shop-now-btn {
+    background-color: #8a5d4d; /* Accent color for buttons */
+    color: #fff; /* Button text color */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover, .shop-now-btn:hover {
+    background-color: #6c3b2e; /* Darker shade for hover */
+}
+
+/* FONTS */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.hero-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700; /* Bold for emphasis */
+}
+
+.btn {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+
