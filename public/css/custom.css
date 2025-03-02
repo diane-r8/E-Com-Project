@@ -1,3 +1,4 @@
+/* HOMEPAGE */
 /* NAVBAR */
 /* Apply margin to the logo container */
 .navbar-brand {
@@ -89,24 +90,50 @@
     box-shadow: none; /* Removes any shadow effect */
 }
 
-/* Navbar text color */
-.navbar-brand {
-    color: #B78D89; /* Dusty Mauve */
+/* Navbar Logo */
+.logo-img {
+    max-width: 200px;
 }
 
+/* Navbar Links */
 .navbar-nav .nav-link {
-    color: #B78D89; /* Dusty Mauve */
+    font-size: 18px;
+    font-weight: 500;
+    color: #7D6E6E; /* Modern muted tone */
+    transition: color 0.3s ease-in-out;
 }
 
 .navbar-nav .nav-link:hover {
-    color: #D6A14A; /* Soft Gold */
+    color: #5D6E54; /* Match theme color */
+}
+
+/* Modern Search Bar */
+.modern-search {
+    border-radius: 50px;
+    border: 1px solid #ccc;
+    padding: 10px 15px;
+    padding-left: 40px;
+    transition: all 0.3s ease-in-out;
+    width: 200px; /* Adjust as needed */
+}
+
+.modern-search:focus {
+    border-color: #5D6E54;
+    box-shadow: 0 0 8px rgba(93, 110, 84, 0.3);
+    outline: none;
+}
+
+/* Cart Icon Badge */
+.cart-badge {
+    font-size: 12px;
+    padding: 3px 7px;
 }
 
 
 /* HERO SECTION */
 /* Body background color */
 body {
-    background-color: #f4f3f0; /* Soft neutral beige/ivory */
+    background-color: #FEFBE9; /* Soft neutral beige/ivory */
     color: #333333; /* Dark gray font color for text */
     font-family: Arial, sans-serif; /* Font family */
 }
@@ -128,7 +155,7 @@ a:hover {
 
 /* Button style */
 button, .shop-now-btn {
-    background-color: #8a5d4d; /* Accent color for buttons */
+    background-color: #5D6E54; /* Accent color for buttons */
     color: #fff; /* Button text color */
     border: none;
     padding: 10px 20px;
@@ -137,7 +164,7 @@ button, .shop-now-btn {
 }
 
 button:hover, .shop-now-btn:hover {
-    background-color: #6c3b2e; /* Darker shade for hover */
+    background-color: #495C42; /* Darker shade for hover */
 }
 
 /* FONTS */
@@ -158,4 +185,35 @@ body {
     font-size: 1.2rem;
 }
 
+/* ABOUT PAGE */
+.about-section {
+    padding: 50px 0;
+}
 
+.founder-img {
+    width: 80%;
+    max-width: 350px;
+    border-radius: 15px; /* Rounded corners */
+}
+
+.logo-container {
+    margin-top: 10px;
+}
+
+.about-logo {
+    width: 160px; /* Adjust as needed */
+    height: auto;
+}
+
+.about-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #5D6E54; /* Match your theme */
+    margin-bottom: 20px;
+}
+
+.about-text {
+    font-size: 1.2rem;
+    color: #333;
+    line-height: 1.6;
+}
