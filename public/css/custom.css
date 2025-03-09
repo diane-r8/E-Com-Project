@@ -217,3 +217,188 @@ body {
     color: #333;
     line-height: 1.6;
 }
+
+/* REVIEWS SECTION */
+/* REVIEWS SECTION */
+/* 🔹 Full-Width Background for Reviews Section */
+.reviews-section {
+    background-color: #8eb47a; /* Adjust this color as needed */
+    width: 100vw; /* Ensures full width */
+    max-width: 100%;
+    padding: 50px 0;
+    overflow: hidden; /* Prevents horizontal scrolling */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/* 🔹 Ensure the Content is Centered */
+.reviews-section .container {
+    max-width: 1100px;
+    margin: auto;
+    text-align: center;
+}
+
+/* 🔹 Review Card Styling */
+.review-card {
+    background: rgb(255, 255, 255);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin: auto;
+    max-width: 500px;
+}
+
+/* 🔹 Review Image */
+.review-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+/* 🔹 Star Icons */
+.stars i {
+    color: gold;
+    font-size: 18px;
+}
+
+/* 🔹 Fix Carousel Controls */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 50px;
+    height: 50px;
+    filter: invert(100%);
+    border-radius: 50%;
+    transition: all 0.3s ease-in-out;
+    top: 50%;
+    transform: translateY(-50%);
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 🔹 Properly Position Navigation Buttons */
+.carousel-control-prev {
+    left: 5%;
+}
+.carousel-control-next {
+    right: 5%;
+}
+
+/* 🔹 Button Hover Effect */
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5);
+}
+
+
+/* CONTACT SECTION */
+.container {
+    max-width: 1100px;
+    padding-bottom: 50px;
+}
+
+.contact-title {
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: #5D6E54;
+    margin-bottom: 10px;
+}
+
+.contact-subtitle {
+    font-size: 1rem;
+    color: #6b705c;
+    margin-bottom: 30px;
+}
+
+/* 🔹 Contact Info Section */
+.contact-info-box {
+    background: rgba(93, 110, 84, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.contact-icon {
+    width: 60px;
+    height: 60px;
+    background: #5D6E54;
+    color: #FEFBE9;
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+/* 🔹 Social Media Section */
+.social-box {
+    background: rgba(93, 110, 84, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.social-details {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.social-link {
+    font-size: 2.5rem;
+    color: #5D6E54;
+    transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.social-link:hover {
+    color: #495C42;
+    transform: scale(1.1);
+}
+
+/* 🔹 Modernized Contact Form */
+.contact-form-box {
+    background: rgba(93, 110, 84, 0.2);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modern-input, .modern-textarea {
+    border-radius: 8px;
+    border: 1px solid #5D6E54;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.modern-textarea {
+    resize: none;
+}
+
+/* 🔹 Send Button (Now stays white on hover) */
+.modern-btn {
+    background-color: #5D6E54;
+    color: white;
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.modern-btn:hover {
+    background-color: #495C42;
+    color: white !important;
+}
