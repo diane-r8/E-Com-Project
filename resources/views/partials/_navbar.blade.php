@@ -3,9 +3,8 @@
     <div class="container-fluid">
         <!-- Logo -->
         <a class="navbar-brand me-auto" href="{{ url('/') }}">
-        <img src="{{ asset('images/logo.png') }}" alt="Crafts N' Wraps Logo" class="img-fluid" style="max-width: 250px;">
+            <img src="{{ asset('images/logo.png') }}" alt="Crafts N' Wraps Logo" class="img-fluid" style="max-width: 250px;">
         </a>
-
 
         <!-- Navbar Toggler (For Mobile View) -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +37,9 @@
 
             <!-- Profile Icon -->
             <div class="profile-icon">
-                <i class="bi bi-person-circle fs-3"></i>
+                <a href="{{ route('user.profile') }}">
+                    <i class="bi bi-person-circle fs-3"></i>
+                </a>
             </div>
         </div>
     </div>
