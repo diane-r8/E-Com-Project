@@ -52,16 +52,15 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        if ($data['email'] === 'scraftsnwraps24@gmail.com') {
+        if ($data['email'] === 'craftsnwraps24@gmail.com') {
             return redirect()->route('register')->withErrors(['email' => 'This email is reserved.']);
         }
-
+    
         return User::create([
-            'fname' => $data['fname'],
-            'lname' => $data['lname'],
-            'username' => $data['username'],
+            'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'user_type' => 'buyer', // Default user type
         ]);
     }
 }
