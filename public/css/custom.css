@@ -22,6 +22,7 @@
     margin-right: 1rem; /* Add margin between the cart icon and the screen edge */
 }
 
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* HERO SECTION */
 /* Hero section with a two-column layout */
 .hero-section {
@@ -81,6 +82,7 @@
     background-color: #3b4a71; /* Darker shade on hover */
 }
 
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* COLOR PALETTE */
 /* NAVBAR */
 
@@ -135,7 +137,7 @@
     padding: 3px 7px;
 }
 
-
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* FOOTER */
 .footer {
     background-color: #eae2b4; /* Light background color */
@@ -210,7 +212,7 @@
 }
 
 
-
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* HERO SECTION */
 /* Body background color */
 body {
@@ -266,6 +268,7 @@ body {
     font-size: 1.2rem;
 }
 
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* ABOUT PAGE */
 .about-section {
     padding: 50px 0;
@@ -299,6 +302,7 @@ body {
     line-height: 1.6;
 }
 
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* REVIEWS SECTION */
 /* 🔹 Full-Width Background for Reviews Section */
 .reviews-section {
@@ -375,7 +379,7 @@ body {
     box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5);
 }
 
-
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* CONTACT SECTION */
 .container {
     max-width: 1100px;
@@ -483,6 +487,7 @@ body {
     color: white !important;
 }
 
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* TERMS AND POLICIES */
 .terms-content {
     font-family: 'Poppins', sans-serif; /* Poppins font specifically for the Terms page */
@@ -522,6 +527,7 @@ body {
     color: #8b6e4f; /* Darker green on hover */
 }
 
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* LOGIN PAGE */
 /* Login Page Container */
 .login-page {
@@ -675,7 +681,7 @@ body {
     margin-top: 10px;
 }
 
-
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* REGISTER FORM */
 /* Register Title Styling */
 .register-form h1 {
@@ -685,6 +691,7 @@ body {
     margin-bottom: 10px;  /* Same margin to create space below the title */
     text-align: center;  /* Center the title */
 }
+
 /* Register Form Specific Styles */
 .register-form .card {
     background: rgba(93, 110, 84, 0.2);  /* Light background with transparency */
@@ -693,7 +700,7 @@ body {
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  /* Box shadow for elevation */
     text-align: left;
     margin-top: 20px;
-    max-width: 500px;  /* Increased max-width for a wider form */
+    max-width: 700px;  /* Increased max-width for a wider form */
     width: 100%;  /* Make the card width responsive */
     margin-left: auto;  /* Centering the card horizontally */
     margin-right: auto;
@@ -773,8 +780,108 @@ body {
     font-size: 16px;  /* Larger font size for error messages */
     margin-top: 10px;
 }
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
+/* PROFILE */
+/* Scoped Styles for Profile Page */
+.profile-page #profile-form {
+    font-family: 'Poppins', sans-serif;
+    background: rgba(93, 110, 84, 0.2);  
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  
+    text-align: left;
+    margin-top: 20px;
+    max-width: 500px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    transition: box-shadow 0.3s ease-in-out;
+}
 
+.profile-page #profile-form .form-control {
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 4px;
+}
 
-/* _____________________________________________________________________________________________________________________________________________ */
-/* SELLER VIEWS*/
+.profile-page #profile-form button {
+    background-color: #5D6E54;
+    color: #FEFBE9;
+    border: none;
+    padding: 14px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    width: 100%; /* Ensure full-width button */
+    margin-top: 10px; /* Space between buttons */
+}
+
+/* Hover Effect */
+.profile-page #profile-form button:hover {
+    background-color: #4a5e43;
+}
+
+/* Edit Profile Button Styling - Scoped for profile page */
+.profile-page .btn-edit-profile {
+    background-color: #5D6E54; /* Green, matching the theme */
+    color: #FEFBE9; /* Light text color */
+    padding: 14px 24px; /* Matching padding for uniform size */
+    font-size: 18px; /* Ensuring the font size matches other buttons */
+    cursor: pointer;
+    border-radius: 4px;
+    display: inline-block;
+    width: 100%; /* Full width of the container */
+    margin-top: 20px; /* Space between the button and profile info */
+    text-align: center; /* Center the text inside the button */
+    border: none; /* Remove border */
+    box-sizing: border-box; /* Ensure padding doesn't affect the width */
+}
+
+/* Hover Effect */
+.profile-page .btn-edit-profile:hover {
+    background-color: #4a5e43; /* Darker shade on hover */
+}
+
+.profile-page .form-group {
+    margin-bottom: 20px;
+}
+
+.profile-page .form-group label {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.profile-page #profile-form input[type="checkbox"] {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.profile-page #profile-form label[for="two_factor_enabled"],
+.profile-page #profile-form label[for="remove_profile_picture"] {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.profile-page .profile-details {
+    text-align: left;
+}
+
+/* If you want to prevent the content from being affected by global styles */
+.profile-page #profile-form input[type="text"],
+.profile-page #profile-form input[type="email"],
+.profile-page #profile-form textarea {
+    width: 100%;
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.profile-page #profile-form .btn {
+    display: inline-block;
+    width: 100%; /* Ensure buttons are full-width */
+    margin-top: 10px; /* Space between buttons */
+}
+
 
