@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Mail\VerifyEmail;
+use App\Mail\ResetPassword;  
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -26,9 +30,28 @@ class User extends Authenticatable implements MustVerifyEmail
         'two_factor_enabled',
     ];
 
+    /**
+     * Define the relationship with the user's profile.
+     */
     public function profile()
     {
         return $this->hasOne(UserProfile::class);
+    }
+
+    /**
+     * Override the default email verification notification to use a custom Mailable.
+     */
+    public function sendEmailVerificationNotification()
+    {
+        Mail::to($this->email)->send(new VerifyEmail($this));
+    }
+
+    /**
+     * Override the default password reset notification to use a custom Mailable.
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        Mail::to($this->email)->send(new ResetPassword($this, $token));
     }
 
     /**

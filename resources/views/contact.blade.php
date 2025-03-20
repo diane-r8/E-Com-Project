@@ -28,7 +28,7 @@
                         <p>+63 9706104541</p>
                     </div>
                 </div>
-
+                
                 <div class="contact-item">
                     <div class="contact-icon"><i class="bi bi-envelope-fill"></i></div>
                     <div class="contact-text">
@@ -59,7 +59,7 @@
         <div class="col-md-6">
             <div class="card contact-form-box h-100">
                 <h2 class="form-title text-center">Send Us a Message</h2>
-                <form action="{{ route('contact.submit') }}" method="POST" class="d-flex flex-column h-100">
+                <form action="{{ route('contact.send') }}" method="POST" class="d-flex flex-column h-100" id="contactForm">
                     @csrf
                     <div class="mb-3">
                         <input type="text" class="form-control modern-input" id="name" name="name" placeholder="Full Name" required>
@@ -88,14 +88,29 @@
     </div>
 </div>
 
-
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<!--Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">Message Sent!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                🎉 Thank you! Your message has been successfully sent. We'll get back to you soon!
+            </div>
+        </div>
     </div>
+</div>
 
+<!--Show Modal if Session Success -->
+@if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+        });
+    </script>
 @endif
-
 
 @endsection
