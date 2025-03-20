@@ -34,6 +34,10 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
+Route::get('/terms', function () {
+    return view('terms');
+})->name('terms');
+
 Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
 
 // ✅ Redirect to login if user is not authenticated (for protected pages)

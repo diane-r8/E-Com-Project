@@ -13,24 +13,35 @@
         <!-- Navbar Items -->
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
             <ul class="navbar-nav gap-4"> <!-- Even spacing between buttons -->
-            @if(auth()->check() && auth()->user()->user_type === 'seller')
-                <!-- Seller Navigation -->
-                <li class="nav-item"><a class="nav-link" href="{{ route('seller.dashboard') }}">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('seller.products') }}">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('seller.about') }}">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('seller.contact') }}">Contact</a></li>
-            @else
-                <!-- General Navigation -->
-                <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/about') }}">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/products') }}">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/contact') }}">Contact</a></li>
-            @endif
-
-            <!--    <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/about') }}">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/products') }}">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/contact') }}">Contact</a></li> -->
+                @if(auth()->check() && auth()->user()->user_type === 'seller')
+                    <!-- Seller Navigation -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('seller/dashboard') ? 'active' : '' }}" href="{{ route('seller.dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('seller/products') ? 'active' : '' }}" href="{{ route('seller.products') }}">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('seller/about') ? 'active' : '' }}" href="{{ route('seller.about') }}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('seller/contact') ? 'active' : '' }}" href="{{ route('seller.contact') }}">Contact</a>
+                    </li>
+                @else
+                    <!-- General Navigation -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('/') ? 'active' : '' }}" href="{{ url('/') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('about') ? 'active' : '' }}" href="{{ url('/about') }}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('products') ? 'active' : '' }}" href="{{ url('/products') }}">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('contact') ? 'active' : '' }}" href="{{ url('/contact') }}">Contact</a>
+                    </li>
+                @endif
             </ul>
         </div>
 
@@ -43,16 +54,16 @@
             </div>
 
             <!-- Cart Icon with Item Count -->
-             @auth
-            <a href="{{ route('cart.index') }}" class="cart-icon position-relative text-dark">
-                <i class="bi bi-cart3 fs-3"></i>
-                <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    {{ session('cart') ? count(session('cart')) : 0 }}
-                </span>
-            </a>
+            @auth
+                <a href="{{ route('cart.index') }}" class="cart-icon position-relative text-dark">
+                    <i class="bi bi-cart3 fs-3"></i>
+                    <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ session('cart') ? count(session('cart')) : 0 }}
+                    </span>
+                </a>
             @else
-            <!-- Guests: Redirect to login page -->
-            <a href="{{ route('login') }}" class="cart-icon position-relative text-dark">
+                <!-- Guests: Redirect to login page -->
+                <a href="{{ route('login') }}" class="cart-icon position-relative text-dark">
                     <i class="bi bi-cart3 fs-3"></i>
                     <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                         {{ session('cart') ? count(session('cart')) : 0 }}
@@ -63,11 +74,11 @@
             <!-- Profile Icon -->
             <div class="profile-icon">
                 @auth
-                    <a href="{{ route('user.profile') }}">
+                    <a href="{{ route('user.profile') }}" class="text-dark">
                         <i class="bi bi-person-circle fs-3"></i>
                     </a>
                 @else
-                    <a href="{{ route('login') }}">
+                    <a href="{{ route('login') }}" class="text-dark">
                         <i class="bi bi-person-circle fs-3"></i>
                     </a>
                 @endauth

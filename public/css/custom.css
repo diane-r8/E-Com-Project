@@ -86,8 +86,8 @@
 
 /* Transparent Navbar background */
 .navbar {
-    background-color: transparent !important;
-    box-shadow: none; /* Removes any shadow effect */
+    background-color: transparent !important;  /* Set navbar background to transparent */
+    box-shadow: none;  /* Removes any shadow effect */
 }
 
 /* Navbar Logo */
@@ -99,12 +99,18 @@
 .navbar-nav .nav-link {
     font-size: 18px;
     font-weight: 500;
-    color: #7D6E6E; /* Modern muted tone */
+    color: #7D6E6E;  /* Default muted tone */
     transition: color 0.3s ease-in-out;
 }
 
+/* Active Link Styling */
+.navbar-nav .nav-link.active {
+    color: #5e5353;  /* Darker green for the active link */
+}
+
+/* Hover Effect */
 .navbar-nav .nav-link:hover {
-    color: #5D6E54; /* Match theme color */
+    color: #5D6E54;  /* Darker green on hover */
 }
 
 /* Modern Search Bar */
@@ -114,7 +120,7 @@
     padding: 10px 15px;
     padding-left: 40px;
     transition: all 0.3s ease-in-out;
-    width: 200px; /* Adjust as needed */
+    width: 200px;  /* Adjust as needed */
 }
 
 .modern-search:focus {
@@ -128,6 +134,81 @@
     font-size: 12px;
     padding: 3px 7px;
 }
+
+
+/* FOOTER */
+.footer {
+    background-color: #eae2b4; /* Light background color */
+    color: #5D6E54; /* Text color */
+    padding: 40px 0; /* Add padding to create more space */
+}
+
+.footer h5 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.footer p {
+    font-size: 0.9rem;
+}
+
+.footer a {
+    color: #5D6E54; /* Link color */
+    text-decoration: none; /* Remove underline */
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #8b6e4f; /* Darker brown on hover */
+}
+
+.footer i {
+    margin-right: 8px; /* Space between icon and text */
+    font-size: 1.3rem; /* Adjust size of icons */
+}
+
+.footer .bi {
+    font-size: 1.6rem; /* Adjust size of social media icons */
+}
+
+.footer a:hover i {
+    color: #8b6e4f; /* Change icon color on hover */
+}
+
+.footer .d-flex {
+    display: flex;
+    justify-content: flex-start; /* Align social links to the left */
+    gap: 10px; /* Space between the social media links */
+}
+
+/* Uniform Margin for All Footer Sections */
+.footer .col-md-3 {
+    margin-bottom: 30px; /* Uniform margin between sections */
+}
+
+/* Make footer text and links responsive */
+@media (max-width: 768px) {
+    .footer .row {
+        text-align: center; /* Center text for small screens */
+    }
+
+    .footer .col-md-3 {
+        margin-bottom: 30px; /* Consistent margin for smaller screens */
+    }
+
+    .footer h5 {
+        font-size: 1.1rem;
+    }
+
+    /* Stack social media links vertically on small screens */
+    .footer .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
 
 
 /* HERO SECTION */
@@ -218,7 +299,6 @@ body {
     line-height: 1.6;
 }
 
-/* REVIEWS SECTION */
 /* REVIEWS SECTION */
 /* 🔹 Full-Width Background for Reviews Section */
 .reviews-section {
@@ -401,4 +481,295 @@ body {
 .modern-btn:hover {
     background-color: #495C42;
     color: white !important;
+}
+
+/* TERMS AND POLICIES */
+.terms-content {
+    font-family: 'Poppins', sans-serif; /* Poppins font specifically for the Terms page */
+    line-height: 1.8;
+    color: #333;
+}
+
+.terms-content h2 {
+    color: #5D6E54; /* Apply #5D6E54 color to section titles */
+    font-size: 1.5rem;
+    margin-top: 30px; /* Space before each section */
+    margin-bottom: 15px; /* Space after each section */
+}
+
+.terms-content p {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 15px; /* Space after each paragraph */
+}
+
+.terms-content ul {
+    margin-bottom: 15px; /* Space after the unordered list */
+    margin-left: 20px; /* Indentation for the list */
+}
+
+.terms-content li {
+    font-size: 1rem; /* Ensure consistent text size */
+    line-height: 1.6;
+}
+
+.terms-content a {
+    color: #5D6E54;
+    text-decoration: none;
+}
+
+.terms-content a:hover {
+    color: #8b6e4f; /* Darker green on hover */
+}
+
+/* LOGIN PAGE */
+/* Login Page Container */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full screen height */
+    background-color: #FEFBE9; /* Background color for the page */
+    margin: 0;  /* Remove any default margin */
+}
+
+/* Container for both image and form */
+.login-container {
+    display: flex;
+    justify-content: flex-start;  /* Align the items to the left */
+    align-items: center;
+    width: 100%;  /* Ensure the container takes up full width */
+    height: 100%; /* Ensure the container takes up full height */
+    padding: 0;   /* Remove any padding */
+    margin: 0;    /* Remove any margin */
+}
+
+/* Left side: Image */
+.login-image {
+    width: 60%; /* Image takes up 60% of the screen */
+    height: 100%; /* Set the height of the image to match the form */
+    padding-right: 20px; /* Space between image and form */
+}
+
+.login-image img {
+    width: 100%; /* Make the image responsive */
+    height: 100%; /* Make the image fill the container */
+    border-radius: 8px; /* Rounded corners for the image */
+    object-fit: cover; /* Ensures image doesn't get distorted */
+}
+
+/* Right side: Login Form */
+.login-form {
+    width: 40%; /* Form takes up 40% of the screen */
+    font-family: 'Poppins', sans-serif; /* Apply Poppins font */
+    padding: 20px;  /* Add padding inside the form */
+    height: 100%; /* Set the form height to 100% */
+}
+
+.login-form h1 {
+    font-size: 2.8rem;  /* Match the size of the contact title */
+    font-weight: bold;
+    color: #5D6E54;  /* Same color as the contact title */
+    margin-bottom: 10px;  /* Same margin to create space below the title */
+    text-align: left;  /* Left-align the title */
+}
+
+.login-form .card {
+    font-family: 'Poppins', sans-serif; /* Ensure Poppins font is applied */
+    background: rgba(93, 110, 84, 0.2);  /* Light background with transparency */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  /* Box shadow for elevation */
+    text-align: left;  /* Left-align everything inside the card */
+    margin-top: 20px;
+    width: 100%;  /* Make the card width responsive */
+    height: 100%;  /* Ensure the card takes the entire available height */
+    margin-left: auto;  /* Centering the card horizontally */
+    margin-right: auto;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.login-form .card:hover {
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);  /* Stronger shadow on hover */
+}
+
+/* Form Styling */
+.login-form form {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Poppins', sans-serif; /* Ensure Poppins font is applied */
+}
+
+/* Form Fields Styling */
+.login-form form div {
+    margin-bottom: 15px;
+}
+
+.login-form form label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.login-form form input[type="email"],
+.login-form form input[type="password"] {
+    padding: 10px;  /* Adjust padding to make inputs more spacious */
+    font-size: 14px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 5px;
+    box-sizing: border-box;  /* Ensures padding is included in the element’s total width */
+    font-family: 'Poppins', sans-serif; /* Ensure Poppins font is applied */
+}
+
+/* Adjust checkbox position */
+.login-form .checkbox-label {
+    font-size: 14px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.login-form form input[type="checkbox"] {
+    margin-right: 8px; /* Space between checkbox and label */
+}
+
+/* Login Button Styling */
+.login-form form button {
+    background-color: #5D6E54;  /* Same as the contact section */
+    color: #FEFBE9;  /* Light color for text */
+    border: none;
+    padding: 12px;  /* Increased padding for the button */
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    margin-bottom: 20px;  /* Adds space between button and the text below */
+}
+
+.login-form form button:hover {
+    background-color: #4a5e43;  /* Darker shade on hover */
+}
+
+/* Text Link Styling (Register here and Forgot your password?) */
+.login-form form p {
+    text-align: left;  /* Left-align the link text */
+    font-size: 16px;  /* Larger text size for the link */
+    margin-top: 15px; /* Adds margin to the text */
+}
+
+.login-form form p a {
+    color: #5D6E54;  /* Matching color */
+    text-decoration: none;
+}
+
+.login-form form p a:hover {
+    text-decoration: underline;
+}
+
+/* Error Message Styling */
+.login-form form .error {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+
+/* REGISTER FORM */
+/* Register Title Styling */
+.register-form h1 {
+    font-size: 2.8rem;  /* Same font size as the login title */
+    font-weight: bold;
+    color: #5D6E54;  /* Same color as the login title */
+    margin-bottom: 10px;  /* Same margin to create space below the title */
+    text-align: center;  /* Center the title */
+}
+/* Register Form Specific Styles */
+.register-form .card {
+    background: rgba(93, 110, 84, 0.2);  /* Light background with transparency */
+    padding: 40px;  /* Increased padding for a bigger form */
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  /* Box shadow for elevation */
+    text-align: left;
+    margin-top: 20px;
+    max-width: 500px;  /* Increased max-width for a wider form */
+    width: 100%;  /* Make the card width responsive */
+    margin-left: auto;  /* Centering the card horizontally */
+    margin-right: auto;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.register-form .card:hover {
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);  /* Stronger shadow on hover */
+}
+
+/* Form Styling */
+.register-form form {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Poppins', sans-serif; /* Ensure Poppins font is applied */
+}
+
+/* Form Fields Styling */
+.register-form form div {
+    margin-bottom: 20px;  /* Increased margin to create more space between fields */
+}
+
+.register-form form label {
+    font-size: 16px;  /* Larger label font size */
+    font-weight: bold;
+    margin-bottom: 8px;  /* Increased margin for better spacing */
+}
+
+.register-form form input[type="text"],
+.register-form form input[type="email"],
+.register-form form input[type="password"] {
+    padding: 12px;  /* Increased padding to make the inputs larger */
+    font-size: 16px;  /* Larger font size for inputs */
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 5px;
+    box-sizing: border-box;  /* Ensures padding is included in the element’s total width */
+}
+
+/* Register Button Styling */
+.register-form form button {
+    background-color: #5D6E54;  /* Same as the contact section */
+    color: #FEFBE9;  /* Light color for text */
+    border: none;
+    padding: 14px;  /* Increased padding for a larger button */
+    font-size: 18px;  /* Larger font size for the button */
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    margin-bottom: 20px;  /* Adds space between button and the text below */
+}
+
+.register-form form button:hover {
+    background-color: #4a5e43;  /* Darker shade on hover */
+}
+
+/* Text Link Styling */
+.register-form form p {
+    text-align: center;
+    font-size: 16px;  /* Larger text size for the link */
+    margin-top: 15px; /* Adds margin to the text */
+}
+
+.register-form form p a {
+    color: #5D6E54;  /* Matching color */
+    text-decoration: none;
+}
+
+.register-form form p a:hover {
+    text-decoration: underline;
+}
+
+/* Error Message Styling */
+.register-form form .error {
+    color: red;
+    font-size: 16px;  /* Larger font size for error messages */
+    margin-top: 10px;
 }

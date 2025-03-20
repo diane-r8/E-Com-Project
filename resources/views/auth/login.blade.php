@@ -1,39 +1,52 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>Login</h1>
-
-    @if ($errors->any())
-        <div>
-            @foreach ($errors->all() as $error)
-                <p style="color: red;">{{ $error }}</p>
-            @endforeach
+<div class="login-page">
+    <div class="login-container">
+        <!-- Left side: Image -->
+        <div class="login-image">
+            <img src="{{ asset('images/login-image.png') }}" alt="Login Image">
         </div>
-    @endif
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
-        <div>
-            <label>Email</label>
-            <input type="email" name="email" required autofocus>
-        </div>
-        <div>
-            <label>Password</label>
-            <input type="password" name="password" required>
-        </div>
-        <div>
-            <input type="checkbox" name="remember"> Remember Me
-        </div>
-        <button type="submit">Login</button>
-    </form>
+        <!-- Right side: Login Form -->
+        <div class="login-form">
+            <div class="card">
+                <h1>Login</h1>
 
-    <p>
-        Don't have an account? <a href="{{ route('register') }}">Register here</a>.
-    </p>
+                @if ($errors->any())
+                    <div>
+                        @foreach ($errors->all() as $error)
+                            <p class="error">{{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
 
-    <p>
-        <a href="{{ route('password.request') }}">Forgot your password?</a>
-    </p>
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+                    <div>
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required autofocus>
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="checkbox-label">
+                        <input type="checkbox" name="remember"> 
+                        <label for="remember">Remember Me</label>
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+
+                <p>
+                    Don't have an account? <a href="{{ route('register') }}">Register here</a>.
+                </p>
+
+                <p>
+                    <a href="{{ route('password.request') }}">Forgot your password?</a>
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
