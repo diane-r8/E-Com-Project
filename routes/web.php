@@ -38,7 +38,33 @@ Route::get('/terms', function () {
     return view('terms');
 })->name('terms');
 
-Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
+/**✅ Authentication Routes (Including Email Verification)
+Auth::routes(['verify' => true]);
+**/
+
+// ✅ Public Pages (Viewable Without Login)
+Route::get('/', function () {
+    return view('home');
+})->name('home');
+
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/products', function () {
+    return view('products');
+})->name('products');
+
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+
+Route::get('/terms', function () {
+    return view('terms');
+})->name('terms');
+
+Route::post('/contact/send', [ContactController::class, 'send'])->name('contact.send');
+
 
 // ✅ Redirect to login if user is not authenticated (for protected pages)
 Route::middleware(['auth'])->group(function () {
