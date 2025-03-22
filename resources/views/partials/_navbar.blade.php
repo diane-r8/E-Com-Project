@@ -42,9 +42,12 @@
 
         <!-- Right Section: Search Bar, Cart, Profile -->
         <form action="{{ route('products.search') }}" method="GET">
-            <input type="text" name="search" class="form-control modern-search ps-5" placeholder="Search..." value="{{ request('search') }}">
-            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-        </form>
+    <div class="search-container position-relative">
+        <input type="text" name="search" class="form-control modern-search ps-5" placeholder="Search..." value="{{ request('search') }}">
+        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+    </div>
+</form>
+
 
 
             <!-- Cart Icon with Item Count chagned -->

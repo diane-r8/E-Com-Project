@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
+    <div class="container mt-5">
 
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -145,10 +145,8 @@
             @endif
         </div>
     </div>
-@endsection
 
-<!-- JavaScript for handling quantity increase and decrease -->
-<script>
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Delegate event listeners to handle dynamic modals
         const modalElements = document.querySelectorAll('.modal');
@@ -176,6 +174,10 @@
         });
     });
 </script>
+@endsection
+
+<!-- JavaScript for handling quantity increase and decrease -->
+
 
 
    

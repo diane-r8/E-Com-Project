@@ -115,6 +115,12 @@
     color: #5D6E54;  /* Darker green on hover */
 }
 
+/* Wrap the search input and icon inside a container */
+.search-container {
+    position: relative;
+    width: 200px; /* Adjust the width of the container as needed */
+}
+
 /* Modern Search Bar */
 .modern-search {
     border-radius: 50px;
@@ -989,7 +995,6 @@ transition: background-color 0.3s ease; /* Smooth transition */
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     flex-grow: 1;
 }
