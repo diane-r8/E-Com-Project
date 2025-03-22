@@ -165,3 +165,5 @@ Route::middleware(['auth'])->group(function () {
     // ✅ Checkout Route
     Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
 });
+
+Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');

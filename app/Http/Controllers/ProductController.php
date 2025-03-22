@@ -162,5 +162,23 @@ public function adjustStock(Request $request, $id) {
 }
 
 
+public function search(Request $request)
+{
+    $categories = Category::all(); // Get all categories
+    $category_id = $request->category_id; // Get selected category from request
+    $searchQuery = $request->search; // Get the search term
+
+    // Fetch products based on search query and category
+    $products = Product::when($category_id, function ($query) use ($category_id) {
+        return $query->where('category_id', $category_id);
+    })
+    ->when($searchQuery, function ($query) use ($searchQuery) {
+        return $query->where('name', 'like', '%' . $searchQuery . '%')
+                     ->orWhere('description', 'like', '%' . $searchQuery . '%');
+    })
+    ->get();
+
+    return view('products', compact('products', 'categories', 'category_id', 'searchQuery'));
+}
 }
 

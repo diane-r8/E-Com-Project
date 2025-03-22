@@ -41,12 +41,11 @@
         </div>
 
         <!-- Right Section: Search Bar, Cart, Profile -->
-        <div class="d-flex align-items-center gap-3">
-            <!-- Modern Search Bar -->
-            <div class="search-bar position-relative">
-                <input type="text" class="form-control modern-search ps-5" placeholder="Search...">
-                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-            </div>
+        <form action="{{ route('products.search') }}" method="GET">
+            <input type="text" name="search" class="form-control modern-search ps-5" placeholder="Search..." value="{{ request('search') }}">
+            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+        </form>
+
 
             <!-- Cart Icon with Item Count chagned -->
             @auth
