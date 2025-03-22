@@ -6,7 +6,7 @@
 
         <div class="page-content mt-4">
             <h2>Shipping Information</h2>
-            <p>We offer delivery services for all our products. Delivery charges may apply depending on your location. Rush order is available with an additional charge.</p>
+            <p>We offer delivery services for all our products. Delivery charges may apply depending on your location. Rush delivery is available with an additional charge.</p>
 
             <h2>Return and Refund Policy</h2>
             <p>Once you receive the product, it cannot be refunded or returned. Please make sure you are satisfied with your order before it is processed and shipped.</p>

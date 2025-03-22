@@ -47,9 +47,6 @@
         <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
     </div>
 </form>
-
-
-
             <!-- Cart Icon with Item Count chagned -->
             @auth
             <a href="{{ route('cart') }}" class="cart-icon position-relative text-dark">
