@@ -140,14 +140,15 @@
 /* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* FOOTER */
 .footer {
-    background-color: #eae2b4; /* Light background color */
-    color: #5D6E54; /* Text color */
+    background-color: #212529; /* Dark background color */
+    color: #fff; /* White text color */
     padding: 40px 0; /* Add padding to create more space */
 }
 
 .footer h5 {
     font-size: 1.2rem;
     margin-bottom: 1rem;
+    color: #fff; /* White text for the section titles */
 }
 
 .footer p {
@@ -155,7 +156,7 @@
 }
 
 .footer a {
-    color: #5D6E54; /* Link color */
+    color: #fff; /* Link color */
     text-decoration: none; /* Remove underline */
     display: flex;
     align-items: center;
@@ -163,7 +164,7 @@
 }
 
 .footer a:hover {
-    color: #8b6e4f; /* Darker brown on hover */
+    color: #8b6e4f; /* Brown color on hover */
 }
 
 .footer i {
@@ -488,43 +489,61 @@ body {
 }
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------- */
-/* TERMS AND POLICIES */
-.terms-content {
-    font-family: 'Poppins', sans-serif; /* Poppins font specifically for the Terms page */
+/* Common styles for all content sections (FAQ, Shipping & Returns, Privacy Policy, Terms & Conditions) */
+.page-content {
+    font-family: 'Poppins', sans-serif; /* Poppins font for all pages */
     line-height: 1.8;
     color: #333;
 }
 
-.terms-content h2 {
-    color: #5D6E54; /* Apply #5D6E54 color to section titles */
+.page-content h2 {
+    color: #000000; /* Apply #5D6E54 color to section titles */
     font-size: 1.5rem;
     margin-top: 30px; /* Space before each section */
     margin-bottom: 15px; /* Space after each section */
 }
 
-.terms-content p {
+.page-content p {
     font-size: 1rem;
     color: #333;
     margin-bottom: 15px; /* Space after each paragraph */
 }
 
-.terms-content ul {
+.page-content ul {
     margin-bottom: 15px; /* Space after the unordered list */
     margin-left: 20px; /* Indentation for the list */
 }
 
-.terms-content li {
+.page-content li {
     font-size: 1rem; /* Ensure consistent text size */
     line-height: 1.6;
 }
 
-.terms-content a {
+.page-content a {
     color: #5D6E54;
     text-decoration: none;
 }
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
+/* FAQ PAGE */
+/* Custom styles for accordion button */
+.accordion-button {
+    background-color: #8eb47a; /* Muted green background */
+    color: white; /* White text */
+    border: 1px solid #5D6E54; /* Matching border color */
+}
 
-.terms-content a:hover {
-    color: #8b6e4f; /* Darker green on hover */
+/* Change background color and text color when hovering */
+.accordion-button:hover {
+    background-color: #A8D08D; /* Lighter muted green for hover */
+    color: #333; /* Dark text color */
+    border-color: #A8D08D; /* Border changes to match the hover color */
+}
+
+/* Accordion button in active state */
+.accordion-button:not(.collapsed) {
+    background-color: #A8D08D; /* Light green background when active */
+    color: #333; /* Dark text color for active state */
+    border-color: #A8D08D; /* Matching border for active state */
 }
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------- */

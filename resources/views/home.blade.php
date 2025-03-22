@@ -17,7 +17,7 @@
 </div>
 
 
-<!-- Review Section -->
+<!-- Review Section
 <section class="reviews-section">
     <div class="container">
         <h2 class="text-center text-white">Customer Reviews</h2>
@@ -52,7 +52,7 @@
                 @endforeach
             </div>
 
-            <!-- Carousel Controls -->
+             Carousel Controls 
             <button class="carousel-control-prev" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             </button>
@@ -61,7 +61,7 @@
             </button>
         </div>
     </div>
-</section>
+</section> -->
 
 
 @endsection
