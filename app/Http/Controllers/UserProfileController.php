@@ -90,7 +90,6 @@ class UserProfileController extends Controller
 
         // Update profile details in user_profiles table
         $user->profile->update([
-            'bio' => $validated['bio'] ?? null,
             'gender' => $validated['gender'] ?? null,
         ]);
 

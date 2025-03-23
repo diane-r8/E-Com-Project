@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->unique(); // Ensures one profile per user
             $table->string('profile_picture')->nullable();
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
-            $table->text('bio')->nullable();
             $table->timestamps();
 
             // Foreign key constraint
