@@ -3,47 +3,36 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Product;
 
 class CartController extends Controller
 {
-    /**
-     * Display the cart page.
-     */
-   
-     public function index()
-     {
-         // Get cart items from session (default to empty array if not set)
-         $cart = session()->get('cart', []);
-     
-         return view('cart', compact('cart')); // Updated view name
-     }
-         /**
-     * Add an item to the cart.
-     */
-    public function addToCart(Request $request)
+    public function index()
     {
-        // Get the cart from session or create an empty array
-        $cart = session()->get('cart', []);
-
-        // Generate a unique ID for the cart item (use product ID when products are ready)
-        $id = $request->id ?? uniqid();  
-
-        // Create the cart item
-        $cart[$id] = [
-            'name' => $request->name ?? 'Sample Product',
-            'price' => $request->price ?? 100, // Default price (change when products are ready)
-            'quantity' => isset($cart[$id]) ? $cart[$id]['quantity'] + 1 : 1,
-        ];
-
-        // Save updated cart to session
-        session()->put('cart', $cart);
-
-        return redirect()->route('cart.index')->with('success', 'Item added to cart!');
+        $cartItems = session()->get('cart', []);
+        return view('cart', compact('cartItems'));
     }
 
-    /**
-     * Remove an item from the cart.
-     */
+    public function addToCart(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$id])) {
+            $cart[$id]['quantity']++;
+        } else {
+            $cart[$id] = [
+                "name" => $product->name,
+                "quantity" => 1,
+                "price" => $product->price,
+                "image" => $product->image
+            ];
+        }
+
+        session()->put('cart', $cart);
+        return redirect()->back()->with('success', 'Product added to cart!');
+    }
+
     public function removeFromCart($id)
     {
         $cart = session()->get('cart', []);
@@ -53,16 +42,39 @@ class CartController extends Controller
             session()->put('cart', $cart);
         }
 
-        return redirect()->route('cart.index')->with('success', 'Item removed from cart.');
+        return redirect()->route('cart')->with('success', 'Product removed from cart.');
     }
 
-    /**
-     * Clear the cart.
-     */
-    public function clearCart()
+    public function updateCart(Request $request, $id)
     {
-        session()->forget('cart');
+        $cart = session()->get('cart', []);
+        
+        if (isset($cart[$id])) {
+            $cart[$id]['quantity'] += $request->change;
+            if ($cart[$id]['quantity'] < 1) {
+                $cart[$id]['quantity'] = 1;
+            }
+            session()->put('cart', $cart);
 
-        return redirect()->route('cart.index')->with('success', 'Cart cleared.');
+            return response()->json([
+                'quantity' => $cart[$id]['quantity'],
+                'total' => number_format($cart[$id]['price'] * $cart[$id]['quantity'], 2)
+            ]);
+        }
+
+        return response()->json(['error' => 'Item not found'], 404);
+    }
+
+    public function removeMultiple(Request $request)
+    {
+        $cart = session()->get('cart', []);
+        if ($request->has('selected_products')) {
+            foreach ($request->selected_products as $id) {
+                unset($cart[$id]);
+            }
+            session()->put('cart', $cart);
+        }
+
+        return redirect()->route('cart')->with('success', 'Selected products removed from cart.');
     }
 }
