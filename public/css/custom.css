@@ -884,7 +884,7 @@ transition: background-color 0.3s ease; /* Smooth transition */
 }
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------- */
-/* PRODUCTS */
+/* SELLER'S VIEW PRODUCTS */
 
     th, td {
         vertical-align: middle;
@@ -907,3 +907,280 @@ transition: background-color 0.3s ease; /* Smooth transition */
     .btn-sm {
         padding: 5px 10px;
     } 
+
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
+/* USER'S VIEW PRODUCTS */
+/* -------------------------- Global Styles -------------------------- */
+.product-quick-view i, .product-add-to-cart i {
+    margin-right: 6px; /* Space between icon and text */
+    font-size: 1.2rem; /* Icon size */
+}
+
+/* -------------------------- Product Card Styles -------------------------- */
+.product-card {
+    width: 23%; /* Set width to 23% for better use of space */
+    margin-bottom: 15px; /* Reduce bottom margin to make the cards closer */
+    background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white background */
+    border-radius: 8px; /* Rounded corners */
+    border: 2px solid rgba(0, 0, 0, 0.1); /* Outer subtle border */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Light shadow for a subtle 3D effect */
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+    padding: 10px; /* Padding inside the card */
+    box-sizing: border-box; /* Prevent padding from causing overflow */
+    
+    backdrop-filter: blur(10px); /* Apply blur effect to the background */
+    -webkit-backdrop-filter: blur(10px); /* For Safari compatibility */
+}
+
+.product-card img {
+    width: 100%;
+    height: auto;
+    object-fit: cover; /* Ensure image fits the container */
+}
+
+
+.product-card * {
+    border: none !important; /* Remove border for all child elements */
+}
+
+.product-card:hover {
+    transform: scale(1.05); /* Scale effect on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Darker shadow on hover */
+}
+
+/* -------------------------- Image Styles -------------------------- */
+.product-image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* Maintain a 1:1 aspect ratio */
+    overflow: hidden;
+    border-radius: 10px; /* Rounded corners for the image container */
+}
+
+.product-image {
+    position: absolute; /* Position the image inside the wrapper */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensure the image covers the container */
+    border-radius: 10px; /* Rounded corners for the image */
+    transition: transform 0.3s ease; /* Smooth zoom effect */
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.1); /* Zoom in on hover */
+}
+
+/* -------------------------- Product Info Styles -------------------------- */
+.product-name {
+    font-size: 1.1rem; /* Adjust font size */
+    font-weight: normal; /* Decrease boldness */
+    white-space: normal; /* Allow wrapping */
+    word-wrap: break-word; /* Allow long words to break onto a new line if necessary */
+    text-align: left; /* Left align the text */
+}
+
+
+.product-description {
+    font-size: 1rem;
+    color: #6c757d;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    flex-grow: 1;
+}
+
+.product-price {
+    font-size: 1.125rem;
+    font-weight: bold;
+    margin-top: auto;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* -------------------------- Button Styles -------------------------- */
+.product-quick-view, .product-add-to-cart {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Full width for buttons */
+    padding: 12px 0; /* Equal padding */
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-sizing: border-box;
+    height: 30px; /* Equal height for both buttons */
+}
+
+.product-quick-view {
+    background-color: rgb(175, 175, 173); 
+    color: #333; /* Dark text */
+}
+
+.product-add-to-cart {
+    background-color: #8eb47a;
+    color: white; /* White text */
+}
+
+/* Button Hover Effects */
+.product-quick-view:hover {
+    background-color: rgb(205, 205, 199); 
+}
+
+.product-add-to-cart:hover {
+    background-color: #6b9b58;
+}
+
+/* -------------------------- Product Actions Container -------------------------- */
+.product-actions {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px; /* Adds space between the buttons */
+    margin-top: 8px;
+}
+
+/* -------------------------- Modal Styles -------------------------- */
+.modal-content {
+    border-radius: 8px;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Modal Image Style */
+.modal-body .product-image {
+    max-width: 100%;
+    margin-bottom: 15px;
+}
+
+/* -------------------------- Filter Form and Category Select -------------------------- */
+.product-filter-form {
+    margin-bottom: 20px;
+}
+
+.product-category-select {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+/* -------------------------- Product Catalog Grid -------------------------- */
+.product-catalog-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 0;
+}
+
+/* -------------------------- Product Catalog Container -------------------------- */
+.product-catalog-container {
+    background-color: #fdfdfd;
+    padding: 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* -------------------------- Responsive Styles -------------------------- */
+@media (max-width: 768px) {
+    .product-card {
+        width: 48%; /* 2 cards per row on medium screens */
+    }
+
+    .product-quick-view, .product-add-to-cart {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-card {
+        width: 100%; /* 1 card per row on small screens */
+    }
+
+    .product-quick-view, .product-add-to-cart {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+}
+  
+
+ /* Remove the up and down arrows for the quantity input field */
+ .quantity::-webkit-outer-spin-button,
+ .quantity::-webkit-inner-spin-button {
+     -webkit-appearance: none;
+     margin: 0;
+ }
+
+ .quantity[type="number"] {
+     -moz-appearance: textfield; /* Firefox */
+     appearance: textfield; /* For other browsers */
+ }
+
+ /* Adjust the width of the quantity input field */
+ .quantity {
+     width: 70px; /* Reduced width */
+     height: 35px; /* Adjust height to match the buttons */
+     text-align: center; /* Center the text inside the input */
+ }
+
+ /* Adjust button size */
+ .decreaseQuantity, .increaseQuantity {
+     width: 40px;
+     height: 35px; /* Same as quantity input field */
+ }
+
+/* Custom styles for the modal footer */
+.modal-footer {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px; /* Adds space between the buttons */
+    width: 100%; /* Ensure the footer takes full width */
+}
+
+/* Ensure both buttons take the full width of the container and have equal height */
+.btn-custom-add-to-cart, .btn-custom-continue-shopping {
+    display: block; /* Makes buttons behave like block elements */
+    width: 100%; /* Ensure both buttons take full width of the container */
+    padding: 14px 0; /* Ensure consistent padding to match button heights */
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    text-align: center; /* Center the text */
+    transition: background-color 0.3s ease;
+    box-sizing: border-box; /* Ensures padding doesn't affect the width */
+    font-size: 16px; /* Set consistent font size */
+}
+
+/* Add to Cart Button */
+.btn-custom-add-to-cart {
+    background-color: #4CAF50; /* Green */
+}
+
+.btn-custom-add-to-cart:hover {
+    background-color: #45a049; /* Darker green */
+}
+
+/* Continue Shopping Button */
+.btn-custom-continue-shopping {
+    background-color: #f0ad4e; /* Orange */
+}
+
+.btn-custom-continue-shopping:hover {
+    background-color: #ec971f; /* Darker orange */
+}
