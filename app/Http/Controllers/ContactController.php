@@ -10,7 +10,7 @@ class ContactController extends Controller
     /**
      * Handle contact form submission and send email.
      */
-    public function send(Request $request)
+    public function submit(Request $request)
     {
         // Validate form data
         $validated = $request->validate([

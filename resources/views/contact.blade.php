@@ -59,7 +59,7 @@
         <div class="col-md-6">
             <div class="card contact-form-box h-100">
                 <h2 class="form-title text-center">Send Us a Message</h2>
-                <form action="{{ route('contact.send') }}" method="POST" class="d-flex flex-column h-100" id="contactForm">
+                <form action="{{ route('contact.submit') }}" method="POST" class="d-flex flex-column h-100" id="contactForm">
                     @csrf
                     <div class="mb-3">
                         <input type="text" class="form-control modern-input" id="name" name="name" placeholder="Full Name" required>
