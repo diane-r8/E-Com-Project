@@ -72,11 +72,6 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Bio</label>
-                            <textarea class="form-control" name="bio">{{ old('bio', $user->profile->bio) }}</textarea>
-                        </div>
-
-                        <div class="mb-3">
                             <label class="form-label">Enable Two-Factor Authentication (2FA)</label>
                             <input type="hidden" name="two_factor_enabled" value="0">
                             <input type="checkbox" name="two_factor_enabled" id="two_factor_enabled" value="1"
@@ -126,7 +121,6 @@
                     <p><strong>Name:</strong> {{ $user->fname }} {{ $user->lname }}</p>
                     <p><strong>Email:</strong> {{ $user->email }}</p>
                     <p><strong>Gender:</strong> {{ ucfirst($user->profile->gender ?? 'Not specified') }}</p>
-                    <p><strong>Bio:</strong> {{ $user->profile->bio ?? 'No bio yet.' }}</p>
                     <p><strong>Two-Factor Authentication:</strong> {{ $user->two_factor_enabled ? 'Enabled' : 'Disabled' }}</p>
                 </div>
 
