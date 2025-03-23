@@ -59,9 +59,21 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
-Route::get('/terms', function () {
-    return view('terms');
-})->name('terms');
+Route::get('/faq', function () {
+    return view('faq');
+})->name('faq');
+
+Route::get('/shipping-returns', function () {
+    return view('shipping_returns');
+})->name('shipping-returns');
+
+Route::get('/privacy-policy', function () {
+    return view('privacy_policy');
+})->name('privacy-policy');
+
+Route::get('/terms-conditions', function () {
+    return view('terms_conditions');
+})->name('terms-conditions');
 
 Route::post('/contact/send', [ContactController::class, 'send'])->name('contact.send');
 

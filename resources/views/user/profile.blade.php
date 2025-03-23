@@ -4,7 +4,7 @@
     <div class="container mt-5">
         <!-- Profile Card Wrapper -->
         <div class="card shadow-sm p-4" style="background-color: #FFFFFF; border-radius: 10px;">
-            <h1 class="text-center mb-4" style="color: #5D6E54;">User Profile</h1>
+            <h1 class="user-profile-title mb-4" >User Profile</h1>
 
             @if(session('success'))
                 <div class="alert alert-success">
@@ -12,11 +12,29 @@
                 </div>
             @endif
 
-            <div class="text-center mb-3">
-                <img src="{{ $user->profile && $user->profile->profile_picture 
-                    ? asset('storage/' . $user->profile->profile_picture) 
-                    : asset('images/default-profile.jpg') }}" 
-                    class="rounded-circle" width="150" height="150" alt="Profile Picture">
+            <div class="row">
+                <!-- Left Container (Profile Picture and Username) -->
+                <div class="col-md-4 text-center">
+                    <div class="profile-left-container">
+                        <img src="{{ $user->profile && $user->profile->profile_picture 
+                            ? asset('storage/' . $user->profile->profile_picture) 
+                            : asset('images/default-profile.jpg') }}" 
+                            class="rounded-circle" width="150" height="150" alt="Profile Picture">
+
+                        <h4 class="mt-3">{{ $user->username }}</h4>
+                    </div>
+                </div>
+
+                <!-- Right Container (Name, Email, Gender, Bio, 2FA) -->
+                <div class="col-md-8">
+                    <div class="profile-right-container border p-3" style="border-radius: 10px; border: 2px solid #5D6E54;">
+                        <p><strong>Name:</strong> {{ $user->fname }} {{ $user->lname }}</p>
+                        <p><strong>Email:</strong> {{ $user->email }}</p>
+                        <p><strong>Gender:</strong> {{ ucfirst($user->profile->gender ?? 'Not specified') }}</p>
+                        <p><strong>Bio:</strong> {{ $user->profile->bio ?? 'No bio yet.' }}</p>
+                        <p><strong>Two-Factor Authentication:</strong> {{ $user->two_factor_enabled ? 'Enabled' : 'Disabled' }}</p>
+                    </div>
+                </div>
             </div>
 
             @if(session('edit_mode') || session('password_mode'))
@@ -79,9 +97,9 @@
                             <label for="two_factor_enabled">Enable 2FA</label>
                         </div>
 
-                        <button type="submit" class="btn btn-success mt-3">Update Profile</button>
-                        <a href="{{ route('user.profile') }}" class="btn btn-secondary mt-3">Cancel</a>
-                        <button type="button" class="btn btn-info mt-3" id="toggle-password-form">Change Password</button>
+                        <button type="submit" class="btn green-button mt-3">Update Profile</button>
+                        <a href="{{ route('user.profile') }}" class="btn gray-button mt-3">Cancel</a>
+                        <button type="button" class="btn brown-button mt-3" id="toggle-password-form">Change Password</button>
                     </div>
                 </form>
 
@@ -125,18 +143,18 @@
                 </div>
 
                 <!-- Updated Edit Profile Button -->
-                <a href="{{ route('user.profile.edit') }}" class="btn btn-edit-profile mt-3">Edit Profile</a>
+                <a href="{{ route('user.profile.edit') }}" class="btn btn-edit-profile green-button mt-3">Edit Profile</a>
 
-                <div id="profile-buttons">
+                <div id="profile-buttons" class="button-container">
                     <form method="POST" action="{{ route('logout') }}" class="mt-3">
                         @csrf
-                        <button type="submit" class="btn btn-danger">Logout</button>
+                        <button type="submit" class="btn btn-danger red-button">Logout</button>
                     </form>
 
                     <form action="{{ route('user.profile.destroy') }}" method="POST">
                         @csrf
                         @method('DELETE')
-                        <br><button type="submit"  class="btn btn-danger" onclick="return confirm('Are you sure you want to delete your account?');">
+                        <br><button type="submit"  class="btn btn-danger red-button" onclick="return confirm('Are you sure you want to delete your account?');">
                             Delete Account
                         </button>
                     </form>
@@ -151,4 +169,5 @@
             document.getElementById('password-form').style.display = 'block';
         });
     </script>
+ 
 @endsection
