@@ -10,19 +10,6 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <!-- Category Filter -->
-    <div class="mb-3">
-        <label for="categoryFilter" class="form-label">Filter by Category:</label>
-        <select id="categoryFilter" class="form-select" onchange="filterProducts()">
-            <option value="all">All Categories</option>
-            @if(isset($categories) && count($categories) > 0)  
-                @foreach($categories as $category)
-                    <option value="{{ $category->id }}">{{ $category->name }}</option>
-                @endforeach
-            @endif
-        </select>
-    </div>
-
     <!-- Bulk Delete Button -->
     <button class="btn btn-danger mb-3" onclick="deleteSelected()">Delete Selected</button>
 
@@ -41,7 +28,7 @@
         </thead>
         <tbody id="productTable">
             @foreach ($products as $product)
-            <tr data-category="{{ $product->category_id }}">
+            <tr data-product-id="{{ $product->id }}">
                 <td><input type="checkbox" class="product-checkbox" value="{{ $product->id }}"></td>
                 <td> 
                     <img src="{{ asset('images/' . $product->image . '.jpg') }}" 
@@ -102,74 +89,83 @@
 
 <!-- JavaScript for Stock, Availability, and Filters -->
 <script>
-    function confirmDelete(productId) {
-        let form = document.getElementById('deleteForm');
-        form.action = "/seller/product/" + productId + "/delete"; 
-        let deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        deleteModal.show();
+document.addEventListener("DOMContentLoaded", function() {
+    document.head.insertAdjacentHTML("beforeend", `<meta name="csrf-token" content="{{ csrf_token() }}">`);
+});
+
+// Confirm delete for single product
+function confirmDelete(productId) {
+    let form = document.getElementById('deleteForm');
+    form.action = "/seller/products/" + productId + "/delete";  // ✅ Corrected URL
+
+    let deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+// Adjust stock via AJAX
+function adjustStock(productId, amount) {
+    let stockElement = document.getElementById('stock-' + productId);
+    let newStock = parseInt(stockElement.innerText) + amount;
+    if (newStock < 0) return; // Prevent negative stock
+
+    stockElement.innerText = newStock;
+
+    fetch(`/seller/product/${productId}/adjust-stock`, { 
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ stock: newStock })
+    }).then(response => response.json()).then(data => {
+        document.getElementById('availability-' + productId).innerText = 
+            newStock > 0 ? '✅ Available' : '❌ Not Available';
+    }).catch(error => console.error("Stock update failed:", error));
+}
+
+// Select all checkboxes
+function toggleSelectAll() {
+    let checkboxes = document.querySelectorAll('.product-checkbox');
+    let selectAll = document.getElementById('selectAll').checked;
+    checkboxes.forEach(checkbox => checkbox.checked = selectAll);
+}
+
+// Bulk delete products
+
+function deleteSelected() {
+    let selectedProducts = Array.from(document.querySelectorAll('.product-checkbox:checked'))
+        .map(checkbox => checkbox.value);
+
+    if (selectedProducts.length === 0) {
+        alert("Please select at least one product to delete.");
+        return;
     }
 
-    function adjustStock(productId, amount) {
-        let stockElement = document.getElementById('stock-' + productId);
-        let newStock = parseInt(stockElement.innerText) + amount;
-        if (newStock < 0) return;
+    if (!confirm("Are you sure you want to delete the selected products?")) return;
 
-        stockElement.innerText = newStock
-
-        
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ stock: newStock })
-        }).then(response => response.json()).then(data => {
-            document.getElementById('availability-' + productId).innerText = 
-                newStock > 0 ? '✅ Available' : '❌ Not Available';
-        });
-    }
-
-    function toggleSelectAll() {
-        let checkboxes = document.querySelectorAll('.product-checkbox');
-        let selectAll = document.getElementById('selectAll').checked;
-        checkboxes.forEach(checkbox => checkbox.checked = selectAll);
-    }
-
-    function filterProducts() {
-        let selectedCategory = document.getElementById('categoryFilter').value;
-        let rows = document.querySelectorAll('#productTable tr');
-
-        rows.forEach(row => {
-            let productCategory = row.getAttribute('data-category');
-            row.style.display = (selectedCategory === "all" || productCategory === selectedCategory) ? "" : "none";
-        });
-    }
-
-    function deleteSelected() {
-        let selectedProducts = Array.from(document.querySelectorAll('.product-checkbox:checked'))
-            .map(checkbox => checkbox.value);
-
-        if (selectedProducts.length === 0) {
-            alert("Please select at least one product to delete.");
-            return;
-        }
-
-        if (!confirm("Are you sure you want to delete the selected products?")) return;
-
-        fetch(/seller/products/delete-multiple, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ product_ids: selectedProducts })
-        }).then(response => response.json()).then(data => {
+    fetch(`/seller/products/delete-multiple`, { 
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ product_ids: selectedProducts })
+    }).then(response => response.json()).then(data => {
+        if (data.success) {
+            // ✅ Remove selected rows from the table
             selectedProducts.forEach(id => {
-                document.querySelector(tr[data-category][data-product-id="${id}"]).remove();
+                let row = document.querySelector(`tr[data-product-id="${id}"]`);
+                if (row) row.remove();
             });
-            alert("Selected products deleted successfully.");
-        });
-    }
+
+            // ✅ Uncheck "Select All" checkbox
+            document.getElementById('selectAll').checked = false;
+        } else {
+            alert("Failed to delete selected products. Please try again.");
+        }
+    }).catch(error => console.error("Bulk delete failed:", error));
+}
+
 </script>
 
-@endsection 
+@endsection                      
