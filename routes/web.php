@@ -1,20 +1,36 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth\LoginController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\SellerController;
 use App\Http\Controllers\ContactController;
-use App\Http\Middleware\AdminMiddleware;
-use App\Http\Controllers\CartController; // for cart
-use App\Http\Controllers\ProductController; //for product
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\ProductController;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Middleware\SellerMiddleware;
+use App\Http\Controllers\SellerController;
 
 
-// ✅ Authentication Routes (Including Email Verification)
+Route::get('/faq', function () {
+    return view('faq');
+})->name('faq');
+
+Route::get('/shipping-returns', function () {
+    return view('shipping_returns');
+})->name('shipping-returns');
+
+Route::get('/privacy-policy', function () {
+    return view('privacy_policy');
+})->name('privacy-policy');
+
+Route::get('/terms-conditions', function () {
+    return view('terms_conditions');
+})->name('terms-conditions');
+// ✅ Authentication Routes
 Auth::routes(['verify' => true]);
 
 // ✅ Public Pages (Viewable Without Login)
@@ -79,107 +95,78 @@ Route::post('/contact/send', [ContactController::class, 'send'])->name('contact.
 
 
 // ✅ Redirect to login if user is not authenticated (for protected pages)
+// ✅ Email Verification Routes
 Route::middleware(['auth'])->group(function () {
+    Route::get('/email/verify', fn() => view('auth.verify'))->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect('/dashboard');
+    })->middleware(['signed'])->name('verification.verify');
+    Route::post('/email/resend', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('resent', true);
+    })->middleware(['throttle:6,1'])->name('verification.resend');
+
+});
+
+Route::post('/seller/product/{id}/adjust-stock', [ProductController::class, 'adjustStock'])->name('seller.adjust_stock');
+
+// ✅ Public Pages (No Authentication Required)
+Route::get('/', fn() => view('home'))->name('home');
+Route::get('/about', fn() => view('about'))->name('about');
+Route::get('/terms', fn() => view('terms'))->name('terms');
+Route::get('/contact', fn() => view('contact'))->name('contact');
+Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+// ✅ Redirect after login
+Route::get('/dashboard', [HomeController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+// ✅ User Profile Routes (Requires Authentication)
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/profile', [UserProfileController::class, 'show'])->name('user.profile');
     Route::get('/user/profile/edit', [UserProfileController::class, 'edit'])->name('user.profile.edit');
     Route::put('/user/profile', [UserProfileController::class, 'update'])->name('user.profile.update');
     Route::delete('/user/profile', [UserProfileController::class, 'destroy'])->name('user.profile.destroy');
     Route::put('/user/profile/password', [UserProfileController::class, 'updatePassword'])->name('user.profile.password.update');
-
-    // ✅ Redirect to login when attempting to access cart (not logged in)
-    Route::get('/cart', function () {
-        return redirect()->route('login')->with('message', 'Please log in to access your cart.');
-    })->name('cart');
 });
 
-// ✅ Email Verification Routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/email/verify', function () {
-        return view('auth.verify');
-    })->name('verification.notice');
-
-    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill();
-        return redirect('/dashboard');
-    })->middleware(['signed'])->name('verification.verify');
-
-    Route::post('/email/resend', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
-        return back()->with('resent', true);
-    })->middleware(['throttle:6,1'])->name('verification.resend');
-});
-
-// ✅ Dashboard Routes
-Route::get('/dashboard', [HomeController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
-// ✅ Admin Routes
+// ✅ Admin Dashboard Routes
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
-        ->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 });
 
 // ✅ Seller Dashboard Routes
-// Route::middleware(['auth', 'verified', 'seller'])->group(function () {
-//    Route::get('/seller/dashboard', function () {
-  //      return view('seller.dashboard');
-    //})->name('seller.dashboard');
-//});
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/seller/dashboard', [SellerController::class, 'dashboard'])->name('seller.dashboard');
+    // ✅ Seller Product Management
+    Route::get('/seller/create_product', [ProductController::class, 'create'])->name('seller.create_product');
+    Route::post('/seller/create_product', [ProductController::class, 'store'])->name('seller.store_product');
+    Route::get('/seller/products', [ProductController::class, 'sellerProducts'])->name('seller.products');   
+    Route::get('/seller/products/{id}/edit', [ProductController::class, 'edit'])->name('seller.edit_product');
+    Route::put('/seller/products/{id}/update', [ProductController::class, 'update'])->name('seller.update_product');
+    Route::delete('/seller/products/{id}/delete', [ProductController::class, 'destroy'])->name('seller.delete_product');
+});
 
-Route::middleware(['auth', 'seller'])->group(function () {
-    Route::get('/seller/dashboard', [SellerController::class, 'index'])->name('seller.dashboard');
+// ✅ OTP Verification
+Route::get('/verify-otp', [App\Http\Controllers\Auth\LoginController::class, 'showOtpForm'])->name('verify.otp.form');
+Route::post('/verify-otp', [App\Http\Controllers\Auth\LoginController::class, 'verifyOtp'])->name('verify.otp');
+
+// ✅ Cart Routes (Requires Authentication)
+Route::middleware(['auth'])->group(function () {
+    Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
+    Route::post('/cart/update/{id}', [CartController::class, 'updateCart'])->name('cart.update');
+    Route::post('/cart/remove-multiple', [CartController::class, 'removeMultiple'])->name('cart.removeMultiple');
+
+    // ✅ Checkout Route
+    Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
 });
 
 
-// ✅ OTP Verification Routes
-Route::get('/verify-otp', [App\Http\Controllers\Auth\LoginController::class, 'showOtpForm'])
-    ->name('verify.otp.form');
-
-Route::post('/verify-otp', [App\Http\Controllers\Auth\LoginController::class, 'verifyOtp'])
-    ->name('verify.otp');
-   
-// for cart
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
-Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
-Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
-    
-
- //product  
-
-
-// Product Catalog (Customers should see this)
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-
-// Seller Product Creation Page
-Route::get('/seller/create_product', [ProductController::class, 'create'])->name('seller.create_product');
-Route::post('/seller/create_product', [ProductController::class, 'store'])->name('seller.store_product');
-
-//Seller routes
-
-
-Route::get('/seller/dashboard', [SellerController::class, 'dashboard'])->name('seller.dashboard');
-Route::get('/seller/about', [SellerController::class, 'about'])->name('seller.about');
-Route::get('/seller/contact', [SellerController::class, 'contact'])->name('seller.contact');
-
-
-// Seller Product Management
-
-Route::get('/seller/products', [ProductController::class, 'sellerProducts'])->name('seller.products');
-Route::get('/seller/product/{id}/edit', [ProductController::class, 'edit'])->name('seller.edit_product');
-Route::delete('/seller/product/{id}', [ProductController::class, 'destroy'])->name('seller.delete_product');
-
-
-//Route::middleware(['auth', 'verified', 'seller'])->group(function () {
-  
-//});
-
-// Seller Edit Product Page
-Route::get('/seller/edit_product/{id}', [ProductController::class, 'edit'])->name('seller.edit_product');
-
-// Seller Update Product
-Route::put('/seller/update_product/{id}', [ProductController::class, 'update'])->name('seller.update_product');
 
 
 

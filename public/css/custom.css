@@ -882,3 +882,28 @@ transition: background-color 0.3s ease; /* Smooth transition */
     font-size: 16px;
     box-shadow: inset -3px -3px 0 rgba(0,0,0,0.2);
 }
+
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
+/* PRODUCTS */
+
+    th, td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    th:nth-child(5), td:nth-child(5) { /* Price Column */
+        width: 12%;
+    }
+
+    th:nth-child(6), td:nth-child(6) { /* Stock Column */
+        min-width: 150px;
+    }
+
+    th:nth-child(8), td:nth-child(8) { /* Actions Column */
+        min-width: 180px;
+        white-space: nowrap;
+    }
+
+    .btn-sm {
+        padding: 5px 10px;
+    } 

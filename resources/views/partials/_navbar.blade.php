@@ -21,12 +21,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ Request::is('seller/products') ? 'active' : '' }}" href="{{ route('seller.products') }}">Products</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Request::is('seller/about') ? 'active' : '' }}" href="{{ route('seller.about') }}">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Request::is('seller/contact') ? 'active' : '' }}" href="{{ route('seller.contact') }}">Contact</a>
-                    </li>
+                  
                 @else
                     <!-- General Navigation -->
                     <li class="nav-item">
@@ -53,14 +48,14 @@
                 <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
             </div>
 
-            <!-- Cart Icon with Item Count -->
+            <!-- Cart Icon with Item Count chagned -->
             @auth
-                <a href="{{ route('cart.index') }}" class="cart-icon position-relative text-dark">
-                    <i class="bi bi-cart3 fs-3"></i>
-                    <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        {{ session('cart') ? count(session('cart')) : 0 }}
-                    </span>
-                </a>
+            <a href="{{ route('cart') }}" class="cart-icon position-relative text-dark">
+                <i class="bi bi-cart3 fs-3"></i>
+                <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">    
+                    {{ session('cart') ? count(session('cart')) : 0 }}
+                </span>
+            </a>
             @else
                 <!-- Guests: Redirect to login page -->
                 <a href="{{ route('login') }}" class="cart-icon position-relative text-dark">

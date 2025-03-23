@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('content')
@@ -30,6 +31,15 @@
                     <select name="availability" id="availability" class="form-control">
                         <option value="1">Available</option>
                         <option value="0">Out of Stock</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="category">Category</label>
+                    <select name="category_id" id="category" class="form-control" required>
+                        <option value="">Select a Category</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="mb-3">
