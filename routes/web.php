@@ -44,7 +44,10 @@ Route::middleware(['auth'])->group(function () {
         $request->user()->sendEmailVerificationNotification();
         return back()->with('resent', true);
     })->middleware(['throttle:6,1'])->name('verification.resend');
+
 });
+
+Route::post('/seller/product/{id}/adjust-stock', [ProductController::class, 'adjustStock'])->name('seller.adjust_stock');
 
 // ✅ Public Pages (No Authentication Required)
 Route::get('/', fn() => view('home'))->name('home');

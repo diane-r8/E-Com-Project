@@ -152,5 +152,15 @@ public function create()
     return view('seller.create_product', compact('categories'));
 }
 
+
+public function adjustStock(Request $request, $id) {
+    $product = Product::findOrFail($id);
+    $product->stock = $request->stock;
+    $product->save();
+
+    return response()->json(['success' => true, 'new_stock' => $product->stock]);
+}
+
+
 }
 

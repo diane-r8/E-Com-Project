@@ -114,9 +114,9 @@
         let newStock = parseInt(stockElement.innerText) + amount;
         if (newStock < 0) return;
 
-        stockElement.innerText = newStock;
+        stockElement.innerText = newStock
 
-        fetch(`/seller/product/${productId}/adjust-stock`, {
+        
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -156,7 +156,7 @@
 
         if (!confirm("Are you sure you want to delete the selected products?")) return;
 
-        fetch(`/seller/products/delete-multiple`, {
+        fetch(/seller/products/delete-multiple, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -165,11 +165,11 @@
             body: JSON.stringify({ product_ids: selectedProducts })
         }).then(response => response.json()).then(data => {
             selectedProducts.forEach(id => {
-                document.querySelector(`tr[data-category][data-product-id="${id}"]`).remove();
+                document.querySelector(tr[data-category][data-product-id="${id}"]).remove();
             });
             alert("Selected products deleted successfully.");
         });
     }
 </script>
 
-@endsection
+@endsection 
