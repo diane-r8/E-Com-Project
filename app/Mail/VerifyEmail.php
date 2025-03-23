@@ -47,7 +47,7 @@ class VerifyEmail extends Mailable
     {
         return URL::temporarySignedRoute(
             'verification.verify', 
-            Carbon::now()->addMinutes(10), // Link expires after 10 minutes
+            Carbon::now()->addMinutes(5), // Link expires after 10 minutes
             [
                 'id' => $user->getKey(),
                 'hash' => sha1($user->getEmailForVerification()),

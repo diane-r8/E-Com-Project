@@ -53,7 +53,6 @@ class UserProfileController extends Controller
             'lname' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'gender' => 'nullable|in:male,female,other',
-            'bio' => 'nullable|string|max:500',
             'profile_picture' => 'nullable|image|max:2048', // 2MB max
             'remove_profile_picture' => 'nullable|boolean',
         ]);
@@ -91,7 +90,6 @@ class UserProfileController extends Controller
 
         // Update profile details in user_profiles table
         $user->profile->update([
-            'bio' => $validated['bio'] ?? null,
             'gender' => $validated['gender'] ?? null,
         ]);
 
