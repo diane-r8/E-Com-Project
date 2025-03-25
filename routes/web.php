@@ -162,8 +162,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cart/update/{id}', [CartController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/remove-multiple', [CartController::class, 'removeMultiple'])->name('cart.removeMultiple');
 
-    // ✅ Checkout Route
-    Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
+   // ✅ Correct Controller for Checkout
+Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('placeOrder');
 });
 
 Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
