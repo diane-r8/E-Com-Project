@@ -913,8 +913,6 @@ transition: background-color 0.3s ease; /* Smooth transition */
     .btn-sm {
         padding: 5px 10px;
     } 
-<<<<<<< HEAD
-
 /* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* USER'S VIEW PRODUCTS */
 /* -------------------------- Global Styles -------------------------- */
@@ -1190,5 +1188,3 @@ transition: background-color 0.3s ease; /* Smooth transition */
 .btn-custom-continue-shopping:hover {
     background-color: #ec971f; /* Darker orange */
 }
-=======
->>>>>>> c29a77c (search function)
