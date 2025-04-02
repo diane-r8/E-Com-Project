@@ -36,12 +36,11 @@
                         <label for="remember">Remember Me</label>
                     </div>
                     <button type="submit">Login</button>
+                    <a href="{{ route('social.redirect', 'google') }}" class="btn btn-danger">Login with Google</a>
                 </form>
-
                 <p>
                     Don't have an account? <a href="{{ route('register') }}">Register here</a>.
                 </p>
-
                 <p>
                     <a href="{{ route('password.request') }}">Forgot your password?</a>
                 </p>

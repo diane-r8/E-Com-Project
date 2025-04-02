@@ -9,17 +9,14 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Middleware\SellerMiddleware;
 use App\Http\Controllers\SellerController;
-use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\XenditController;
-
 use App\Models\ProductVariation;
-
-
-
+use App\Http\Controllers\SocialAuthController;
 
 Route::get('/faq', function () {
     return view('faq');
@@ -164,6 +161,11 @@ Route::post('/seller/product/{id}/adjust-stock', [SellerController::class, 'adju
 Route::get('/verify-otp', [App\Http\Controllers\Auth\LoginController::class, 'showOtpForm'])->name('verify.otp.form');
 Route::post('/verify-otp', [App\Http\Controllers\Auth\LoginController::class, 'verifyOtp'])->name('verify.otp');
 
+// ✅ OTP Verification with SocialAuthController
+Route::get('/social-verify-otp', [App\Http\Controllers\SocialAuthController::class, 'showVerifyForm'])->name('social.verify.otp.form');
+Route::post('/social-verify-otp', [App\Http\Controllers\SocialAuthController::class, 'verifyOTP'])->name('social.verify.otp');
+
+
 // ✅ Cart Routes (Requires Authentication)
 Route::middleware(['auth'])->group(function () {
     Route::match(['get', 'post'], '/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
@@ -174,16 +176,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
     Route::post('/cart/update/{id}', [CartController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/remove-multiple', [CartController::class, 'removeMultiple'])->name('cart.removeMultiple');
-
-  
+ 
 });
 
 Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
 
 
 // // for checkout
-// Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
-// Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
+Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 
 
 
@@ -205,3 +206,14 @@ Route::get('/payment-success', function () {
 Route::get('/payment-failed', function () {
     return 'Payment failed!';
 })->name('payment.failed');
+
+   // Controller for Checkout
+   // Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
+   // Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('placeOrder');
+
+Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
+
+//Social Media Login
+Route::get('auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
+Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
+>>>>>>> fdcf283 (Added social authentication and updated user profile logic)
