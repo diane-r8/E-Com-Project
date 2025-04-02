@@ -16,8 +16,6 @@ use App\Http\Controllers\SellerController;
 use App\Http\Controllers\XenditController;
 use App\Models\ProductVariation;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\XenditController;
-use App\Models\ProductVariation;
 use App\Http\Controllers\SocialAuthController;
 
 Route::get('/faq', function () {
@@ -245,4 +243,3 @@ Route::get('/payment-failed', function () {
 //Social Media Login
 Route::get('auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
 Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
->>>>>>> fdcf283 (Added social authentication and updated user profile logic)
