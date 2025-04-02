@@ -9,11 +9,13 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Middleware\SellerMiddleware;
 use App\Http\Controllers\SellerController;
+use App\Http\Controllers\XenditController;
+use App\Models\ProductVariation;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\XenditController;
 use App\Models\ProductVariation;
 use App\Http\Controllers\SocialAuthController;
@@ -212,6 +214,33 @@ Route::get('/payment-failed', function () {
    // Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('placeOrder');
 
 Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
+
+
+// // for checkout
+// Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
+// Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+
+
+
+// GET route to show the checkout page (form to review order)
+Route::get('/checkout', [CheckoutController::class, 'showCheckoutPage'])->name('checkout');
+
+// POST route to handle the checkout submission (e.g., process the order)
+Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+
+// POST route for payment processing (separate from checkout)
+Route::post('/payment', [PaymentController::class, 'process'])->name('payment.process');
+
+
+Route::post('/pay-with-gcash', [XenditController::class, 'payWithGCash'])->name('pay.gcash');
+// Route::post('/pay-with-gcash', [XenditController::class, 'createPayment']);
+Route::get('/payment-success', function () {
+    return 'Payment successful!';
+})->name('payment.success');
+Route::get('/payment-failed', function () {
+    return 'Payment failed!';
+})->name('payment.failed');
+
 
 //Social Media Login
 Route::get('auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
