@@ -13,6 +13,12 @@ use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Middleware\SellerMiddleware;
 use App\Http\Controllers\SellerController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\XenditController;
+
+use App\Models\ProductVariation;
+
+
 
 
 Route::get('/faq', function () {
@@ -148,6 +154,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/seller/products/{id}/edit', [ProductController::class, 'edit'])->name('seller.edit_product');
     Route::put('/seller/products/{id}/update', [ProductController::class, 'update'])->name('seller.update_product');
     Route::delete('/seller/products/{id}/delete', [ProductController::class, 'destroy'])->name('seller.delete_product');
+    Route::get('/seller/variations/{id}/edit', [SellerController::class, 'editVariation'])->name('seller.edit_variation');
+Route::post('/seller/variations/{id}/update', [SellerController::class, 'updateVariation'])->name('seller.update_variation');
+Route::post('/seller/product/{id}/adjust-stock', [SellerController::class, 'adjustProductStock']); Route::post('/seller/variation/{id}/adjust-stock', [SellerController::class, 'adjustVariationStock']);
+
 });
 
 // ✅ OTP Verification
@@ -156,15 +166,42 @@ Route::post('/verify-otp', [App\Http\Controllers\Auth\LoginController::class, 'v
 
 // ✅ Cart Routes (Requires Authentication)
 Route::middleware(['auth'])->group(function () {
-    Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::match(['get', 'post'], '/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
+
+
     Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
     Route::post('/cart/update/{id}', [CartController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/remove-multiple', [CartController::class, 'removeMultiple'])->name('cart.removeMultiple');
 
-   // ✅ Correct Controller for Checkout
-Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
-Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('placeOrder');
+  
 });
 
 Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
+
+
+// // for checkout
+// Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
+// Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+
+
+
+// GET route to show the checkout page (form to review order)
+Route::get('/checkout', [CheckoutController::class, 'showCheckoutPage'])->name('checkout');
+
+// POST route to handle the checkout submission (e.g., process the order)
+Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+
+// POST route for payment processing (separate from checkout)
+Route::post('/payment', [PaymentController::class, 'process'])->name('payment.process');
+
+
+Route::post('/pay-with-gcash', [XenditController::class, 'payWithGCash'])->name('pay.gcash');
+// Route::post('/pay-with-gcash', [XenditController::class, 'createPayment']);
+Route::get('/payment-success', function () {
+    return 'Payment successful!';
+})->name('payment.success');
+Route::get('/payment-failed', function () {
+    return 'Payment failed!';
+})->name('payment.failed');

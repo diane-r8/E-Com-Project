@@ -890,7 +890,7 @@ transition: background-color 0.3s ease; /* Smooth transition */
 }
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------- */
-/* PRODUCTS */
+/* SELLER'S VIEW PRODUCTS */
 
     th, td {
         vertical-align: middle;
@@ -913,6 +913,7 @@ transition: background-color 0.3s ease; /* Smooth transition */
     .btn-sm {
         padding: 5px 10px;
     } 
+
 /* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* USER'S VIEW PRODUCTS */
 /* -------------------------- Global Styles -------------------------- */

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductVariation;
+
 
 class SellerController extends Controller
 {
@@ -19,6 +21,46 @@ class SellerController extends Controller
     {
         return view('seller.products');
     }
+
+    public function editVariation($id)
+{
+    $variation = ProductVariation::findOrFail($id);
+    return view('seller.edit_variation', compact('variation'));
+}
+
+public function updateVariation(Request $request, $id)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'stock' => 'required|integer|min:0'
+    ]);
+
+    $variation = ProductVariation::findOrFail($id);
+    $variation->update([
+        'name' => $request->name,
+        'price' => $request->price,
+        'stock' => $request->stock,
+    ]);
+
+    return redirect()->route('seller.products')->with('success', 'Product variation updated successfully.');
+}
+
+public function adjustProductStock(Request $request, $id) {
+    $product = Product::findOrFail($id);
+    $product->stock = $request->stock;
+    $product->save();
+
+    return response()->json(['success' => true, 'stock' => $product->stock]);
+}
+
+public function adjustVariationStock(Request $request, $id) {
+    $variation = ProductVariation::findOrFail($id);
+    $variation->stock = $request->stock;
+    $variation->save();
+
+    return response()->json(['success' => true, 'stock' => $variation->stock]);
+}
 
     // Index function for filtering products by category
     public function index(Request $request)
@@ -35,3 +77,4 @@ class SellerController extends Controller
         return view('seller.products', compact('products', 'categories', 'category_id'));
     }
 }
+
