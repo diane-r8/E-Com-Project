@@ -8,21 +8,26 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>  <!-- Display error message from backend -->
+    @endif
+
     @if(count($cartItems) > 0)
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <button id="editCartBtn" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">🛠 Edit</button>
             <button id="deleteSelectedBtn" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">🗑 Delete Selected</button>
         </div>
-      
     </div>
 
-    <form action="{{ route('checkout') }}" method="POST">
+    <form action="{{ route('checkout') }}" method="GET" id="checkoutForm">
         @csrf
+        <input type="hidden" name="selected_items" id="selected_items_input">
+        
         <div class="cart-items shadow-xs">
             @foreach($cartItems as $id => $item)
             <div class="cart-item d-flex align-items-center p-3 mb-3 rounded shadow-sm bg-white">
-                <input type="checkbox" class="product-checkbox me-3" name="selected_products[]" value="{{ $id }}" data-price="{{ $item['price'] * $item['quantity'] }}">
+                <input type="checkbox" class="product-checkbox me-3" name="selected_items[]" value="{{ $id }}" data-price="{{ $item['price'] * $item['quantity'] }}">
                 
                 @php
                 $imagePath = asset("images/default.png"); // Default image
@@ -61,25 +66,32 @@
             @endforeach
         </div>
         
-
         <div class="d-flex justify-content-between align-items-center mb-4">
-      
-        <button type="submit" class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition" id="checkoutBtn">Checkout</button>
-           
-             <div class="fw-bold">Total: ₱<span id="total-price">0.00</span></div>
+            <button type="submit" class="btn btn-success px-3 py-1 rounded hover:bg-green-600 transition block text-center" id="checkoutBtn">Checkout</button>
+            <div class="fw-bold">Total: ₱<span id="total-price">0.00</span></div>
         </div>
-      
-    </div>
-      
-
     </form>
+
     @else
         <p class="text-center text-muted">Your cart is empty.</p>
     @endif
 </div>
 
 <script>
-   document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
+    // Error handling when trying to submit with no selected items
+    const checkoutForm = document.getElementById('checkoutForm');
+    checkoutForm.addEventListener('submit', function (e) {
+        const selectedItems = document.querySelectorAll(".product-checkbox:checked");
+        
+        // If no items are selected, prevent form submission and show the error message
+        if (selectedItems.length === 0) {
+            e.preventDefault();  // Prevent the form from submitting
+            alert("Please select at least one item to checkout.");
+        }
+    });
+
+    // Quantity update and total calculation
     document.querySelectorAll(".increase-qty, .decrease-qty").forEach(button => {
         button.addEventListener("click", function () {
             let productId = this.dataset.id;
@@ -126,7 +138,7 @@
                 "Content-Type": "application/json",
                 "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
             },
-            body: JSON.stringify({ product_ids: selectedIds })
+            body: JSON.stringify({ selected_products: selectedIds })
         })
         .then(response => response.json())
         .then(data => {
@@ -140,12 +152,24 @@
 
     function updateTotal() {
         let total = 0;
-        document.querySelectorAll(".product-checkbox:checked").forEach(checkbox => {
+        let selectedItems = document.querySelectorAll(".product-checkbox:checked");
+        
+        selectedItems.forEach(checkbox => {
             total += parseFloat(checkbox.dataset.price);
         });
+
         document.getElementById("total-price").innerText = total.toFixed(2);
+
+        // Enable or disable the checkout button based on selection
+        const checkoutBtn = document.getElementById("checkoutBtn");
+        checkoutBtn.disabled = selectedItems.length === 0;
+
+        // Update hidden input with selected item IDs
+        let selectedIds = Array.from(selectedItems).map(checkbox => checkbox.value);
+        document.getElementById("selected_items_input").value = selectedIds.join(',');
     }
 
+    // Update total and checkout button state on checkbox change
     document.querySelectorAll(".product-checkbox").forEach(checkbox => {
         checkbox.addEventListener("change", updateTotal);
     });
@@ -153,4 +177,3 @@
 
 </script>
 @endsection
-

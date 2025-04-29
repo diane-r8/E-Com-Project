@@ -1,61 +1,126 @@
 <?php
-// CheckoutController.php
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\DeliveryArea;
 use Illuminate\Http\Request;
-use App\Models\Product;
-use App\Models\ProductVariation;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
-    // Display the checkout page
-    public function showCheckoutPage(Request $request)
+    public function checkout(Request $request)
     {
-        $product = Product::find($request->product_id);
-        $variation = ProductVariation::find($request->variation_id);
-        $quantity = $request->quantity;
+        $allCart = session()->get('cart', []); // Retrieve the full cart from session
 
-        if (!$product || !$variation) {
-            return redirect()->back()->with('error', 'Invalid product or variation');
+        // ✅ NEW: Handle selected items passed via GET
+        $selectedIds = $request->input('selected_items', []);
+        $cart = [];
+
+        if (!empty($selectedIds)) {
+            foreach ($selectedIds as $id) {
+                if (isset($allCart[$id])) {
+                    $cart[$id] = $allCart[$id];
+                }
+            }
+        } else {
+            $cart = $allCart;
         }
 
-        $totalPrice = $variation->price * $quantity;
+        if (empty($cart)) {
+            return redirect()->route('cart')->with('error', 'Your cart is empty or no items were selected.');
+        }
 
-        // Show the checkout page with the product, variation, quantity, and total price
-        return redirect()->route('checkout')->with([
-            'product' => $product,
-            'variation' => $variation,
-            'quantity' => $quantity,
-            'totalPrice' => $totalPrice
-        ]);
-        
+        // ✅ Use filtered cart to calculate total
+        $totalPrice = array_reduce($cart, function ($carry, $item) {
+            return $carry + ($item['price'] * $item['quantity']);
+        }, 0);
+
+        // Prepare for delivery fee and rush order fee
+        $deliveryFee = 0;
+        $rushOrderFee = 0;
+
+        if ($request->has('delivery_area')) {
+            // Fetch delivery fee from the database
+            $deliveryArea = $request->delivery_area;
+            $area = DeliveryArea::where('area_name', $deliveryArea)->first();
+
+            if ($area) {
+                $deliveryFee = $area->delivery_fee;
+            } else {
+                $deliveryFee = 0; // Default to 0 if not found
+            }
+        }
+
+        if ($request->has('rush_order') && $request->rush_order) {
+            $rushOrderFee = 50;
+        }
+
+        // Add delivery and rush fees to total
+        $totalPrice += $deliveryFee + $rushOrderFee;
+
+        return view('checkout', compact('cart', 'totalPrice', 'deliveryFee', 'rushOrderFee'));
     }
 
-    // Process the checkout (handle the form submission)
-    public function processCheckout(Request $request)
+    public function placeOrder(Request $request)
     {
-        // Validate input, you can extend this validation as needed
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'variation_id' => 'required|exists:product_variations,id',
-            'quantity' => 'required|integer|min:1',
+            'shipping_address' => 'required|string',
+            'delivery_area' => 'required|string',
+            'payment_method' => 'required|string',
+            'delivery_method' => 'required|string',
         ]);
 
-        $product = Product::find($validated['product_id']);
-        $variation = ProductVariation::find($validated['variation_id']);
-        $quantity = $validated['quantity'];
+        $cart = session()->get('cart', []);
 
-        if (!$product || !$variation) {
-            return redirect()->back()->with('error', 'Invalid product or variation');
+        if (empty($cart)) {
+            return redirect()->route('cart')->with('error', 'Your cart is empty.');
         }
 
-        // Calculate the total price
-        $totalPrice = $variation->price * $quantity;
+        $totalPrice = array_reduce($cart, function ($carry, $item) {
+            return $carry + ($item['price'] * $item['quantity']);
+        }, 0);
 
-        // Order creation logic, payment processing goes here
+        $deliveryFee = 0;
+        if ($request->has('delivery_area')) {
+            $deliveryArea = $request->delivery_area;
+            $area = DeliveryArea::where('area_name', $deliveryArea)->first();
 
-        // Redirect to a success or payment confirmation page
-        return view('checkout.success', compact('product', 'variation', 'quantity', 'totalPrice'));
+            if ($area) {
+                $deliveryFee = $area->delivery_fee;
+            } else {
+                $deliveryFee = 0; // Default to 0 if not found
+            }
+        }
+
+        $rushOrderFee = $request->has('rush_order') ? 50 : 0;
+        $totalPrice += $deliveryFee + $rushOrderFee;
+
+        $order = new Order();
+        $order->user_id = auth()->id();
+        $order->shipping_address = $validated['shipping_address'];
+        $order->delivery_area = $request->delivery_area;
+        $order->total_price = $totalPrice;
+        $order->payment_method = $validated['payment_method'];
+        $order->delivery_method = $validated['delivery_method'];
+        $order->delivery_fee = $deliveryFee;
+        $order->rush_order_fee = $rushOrderFee;
+        $order->status = 'Pending';
+        $order->save();
+
+        foreach ($cart as $item) {
+            $orderItem = new OrderItem();
+            $orderItem->order_id = $order->id;
+            $orderItem->product_name = $item['product_name'];
+            $orderItem->variation_name = $item['variation_name'];
+            $orderItem->price = $item['price'];
+            $orderItem->quantity = $item['quantity'];
+            $orderItem->save();
+        }
+
+        session()->forget('cart');
+
+        return view('checkout.success', ['total' => $totalPrice]);
     }
 }

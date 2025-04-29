@@ -114,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::post('/seller/product/{id}/adjust-stock', [ProductController::class, 'adjustStock'])->name('seller.adjust_stock');
 
-// ✅ Public Pages (No Authentication Required)
+//Public Pages (No Authentication Required)
 Route::get('/', fn() => view('home'))->name('home');
 Route::get('/about', fn() => view('about'))->name('about');
 Route::get('/terms', fn() => view('terms'))->name('terms');
@@ -122,12 +122,12 @@ Route::get('/contact', fn() => view('contact'))->name('contact');
 Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
-// ✅ Redirect after login
+//Redirect after login
 Route::get('/dashboard', [HomeController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// ✅ User Profile Routes (Requires Authentication)
+//User Profile Routes (Requires Authentication)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/profile', [UserProfileController::class, 'show'])->name('user.profile');
     Route::get('/user/profile/edit', [UserProfileController::class, 'edit'])->name('user.profile.edit');
@@ -136,15 +136,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/user/profile/password', [UserProfileController::class, 'updatePassword'])->name('user.profile.password.update');
 });
 
-// ✅ Admin Dashboard Routes
+//Admin Dashboard Routes
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 });
 
-// ✅ Seller Dashboard Routes
+//Seller Dashboard Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/seller/dashboard', [SellerController::class, 'dashboard'])->name('seller.dashboard');
-    // ✅ Seller Product Management
+
+    //Seller Product Management
     Route::get('/seller/create_product', [ProductController::class, 'create'])->name('seller.create_product');
     Route::post('/seller/create_product', [ProductController::class, 'store'])->name('seller.store_product');
     Route::get('/seller/products', [ProductController::class, 'sellerProducts'])->name('seller.products');   
@@ -157,46 +158,39 @@ Route::post('/seller/product/{id}/adjust-stock', [SellerController::class, 'adju
 
 });
 
-// ✅ OTP Verification
+//OTP Verification
 Route::get('/verify-otp', [App\Http\Controllers\Auth\LoginController::class, 'showOtpForm'])->name('verify.otp.form');
 Route::post('/verify-otp', [App\Http\Controllers\Auth\LoginController::class, 'verifyOtp'])->name('verify.otp');
 
-// ✅ OTP Verification with SocialAuthController
+// OTP Verification with SocialAuthController
 Route::get('/social-verify-otp', [App\Http\Controllers\SocialAuthController::class, 'showVerifyForm'])->name('social.verify.otp.form');
 Route::post('/social-verify-otp', [App\Http\Controllers\SocialAuthController::class, 'verifyOTP'])->name('social.verify.otp');
 
 
-// ✅ Cart Routes (Requires Authentication)
+//Cart Routes (Requires Authentication)
 Route::middleware(['auth'])->group(function () {
     Route::match(['get', 'post'], '/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
-
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
-
-
     Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
     Route::post('/cart/update/{id}', [CartController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/remove-multiple', [CartController::class, 'removeMultiple'])->name('cart.removeMultiple');
- 
 });
 
+//Product Search
 Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
 
+//Social Media Login
+Route::get('auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
+Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
 
-// // for checkout
-Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
-Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
-
-
-
-// GET route to show the checkout page (form to review order)
-Route::get('/checkout', [CheckoutController::class, 'showCheckoutPage'])->name('checkout');
-
-// POST route to handle the checkout submission (e.g., process the order)
-Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+// Checkout Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout'); // Shows the checkout page
+    Route::post('/placeOrder', [CheckoutController::class, 'placeOrder'])->name('placeOrder'); // Handles checkout form submission
+});
 
 // POST route for payment processing (separate from checkout)
 Route::post('/payment', [PaymentController::class, 'process'])->name('payment.process');
-
 
 Route::post('/pay-with-gcash', [XenditController::class, 'payWithGCash'])->name('pay.gcash');
 // Route::post('/pay-with-gcash', [XenditController::class, 'createPayment']);
@@ -211,35 +205,3 @@ Route::get('/payment-failed', function () {
    // Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
    // Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('placeOrder');
 
-Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
-
-
-// // for checkout
-// Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
-// Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
-
-
-
-// GET route to show the checkout page (form to review order)
-Route::get('/checkout', [CheckoutController::class, 'showCheckoutPage'])->name('checkout');
-
-// POST route to handle the checkout submission (e.g., process the order)
-Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
-
-// POST route for payment processing (separate from checkout)
-Route::post('/payment', [PaymentController::class, 'process'])->name('payment.process');
-
-
-Route::post('/pay-with-gcash', [XenditController::class, 'payWithGCash'])->name('pay.gcash');
-// Route::post('/pay-with-gcash', [XenditController::class, 'createPayment']);
-Route::get('/payment-success', function () {
-    return 'Payment successful!';
-})->name('payment.success');
-Route::get('/payment-failed', function () {
-    return 'Payment failed!';
-})->name('payment.failed');
-
-
-//Social Media Login
-Route::get('auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
-Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
