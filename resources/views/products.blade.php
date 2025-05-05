@@ -124,24 +124,22 @@
                                             <div class="modal-footer">
                                             <form action="{{ route('cart.add', $product->id) }}" method="POST" onsubmit="return validateVariation({{ $product->id }})">
     @csrf
-    <input type="hidden" name="variation_id" id="selectedVariation{{ $product->id }}">
-    <input type="hidden" name="quantity" id="selectedQuantity{{ $product->id }}" value="1">
+    <input type="hidden" name="variation_id" class="selectedVariation" data-product-id="{{ $product->id }}">
+    <input type="hidden" name="quantity" class="selectedQuantity" data-product-id="{{ $product->id }}" value="1">
     <button type="submit" class="btn btn-custom-add-to-cart">
         <i class="bi bi-cart-plus"></i> Add to Cart
     </button>
 </form>
 
-<form action="{{ route('checkout', $product->id) }}" method="POST" onsubmit="return validateVariation({{ $product->id }})">
+<form action="{{ route('buy-now') }}" method="POST" onsubmit="return validateVariation({{ $product->id }})">
     @csrf
     <input type="hidden" name="product_id" value="{{ $product->id }}">
-    <input type="hidden" name="variation_id" id="selectedVariation{{ $product->id }}">
-    <input type="hidden" name="quantity" id="selectedQuantity{{ $product->id }}" value="1">
+    <input type="hidden" name="variation_id" class="selectedVariation" data-product-id="{{ $product->id }}">
+    <input type="hidden" name="quantity" class="selectedQuantity" data-product-id="{{ $product->id }}" value="1">
     <button type="submit" class="btn btn-primary">
         <i class="bi bi-credit-card"></i> Buy Now
     </button>
-</form>        
-
-
+</form>
 
 
                                                 <button type="button" class="btn btn-custom-continue-shopping" data-bs-dismiss="modal">
@@ -164,20 +162,19 @@
  
 
     <!-- JavaScript for handling variation selection & quantity -->
-    <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    // Show alert for cart success
-    if (sessionStorage.getItem("cartSuccess")) {
-        alert("Product has been added to your cart!");
-        sessionStorage.removeItem("cartSuccess"); // Clear flag after showing
-    }
-
+   
+ <script>
+document.addEventListener("DOMContentLoaded", function() {
     // Handle variation selection
     document.querySelectorAll("[id^='variations']").forEach(variationGroup => {
         variationGroup.addEventListener("change", function(event) {
             let productId = variationGroup.id.replace("variations", ""); 
             let selectedVariation = event.target.value;
-            document.getElementById("selectedVariation" + productId).value = selectedVariation;
+
+            // Set value on all matching hidden fields
+            document.querySelectorAll(".selectedVariation[data-product-id='" + productId + "']").forEach(input => {
+                input.value = selectedVariation;
+            });
         });
     });
 
@@ -189,47 +186,48 @@
             const quantityInput = modal.querySelector('.quantity');
             const productId = modal.id.replace("quickViewModal", "");
 
-            decreaseButton.addEventListener('click', function() {
+            const updateHiddenQuantity = () => {
+                document.querySelectorAll(".selectedQuantity[data-product-id='" + productId + "']").forEach(input => {
+                    input.value = quantityInput.value;
+                });
+            };
+
+            decreaseButton.onclick = () => {
                 let currentQuantity = parseInt(quantityInput.value);
                 if (currentQuantity > 1) {
                     quantityInput.value = currentQuantity - 1;
-                    document.getElementById("selectedQuantity" + productId).value = quantityInput.value;
+                    updateHiddenQuantity();
                 }
-            });
+            };
 
-            increaseButton.addEventListener('click', function() {
+            increaseButton.onclick = () => {
                 let currentQuantity = parseInt(quantityInput.value);
                 quantityInput.value = currentQuantity + 1;
-                document.getElementById("selectedQuantity" + productId).value = quantityInput.value;
-            });
+                updateHiddenQuantity();
+            };
 
-            // Ensure quantity input updates the hidden field
-            quantityInput.addEventListener("input", function() {
-                document.getElementById("selectedQuantity" + productId).value = quantityInput.value;
-            });
+            quantityInput.oninput = updateHiddenQuantity;
         });
     });
 });
 
 // Ensure variation is selected before submitting
 function validateVariation(productId) {
-    let selectedVariation = document.getElementById("selectedVariation" + productId).value;
-    if (!selectedVariation) {
+    let selected = document.querySelector(".selectedVariation[data-product-id='" + productId + "']");
+    if (!selected || !selected.value) {
         alert("Please select a variation before proceeding.");
         return false;
     }
     return true;
 }
 
-// Open the Quick View modal when clicking the outside "Add to Cart" button
+// Trigger Quick View modal
 function openQuickView(productId) {
     var modal = new bootstrap.Modal(document.getElementById("quickViewModal" + productId));
     modal.show();
 }
+</script>
 
-
-
-    </script>
 @endsection
 
 

@@ -36,6 +36,8 @@
                         <label for="remember">Remember Me</label>
                     </div>
                     <button type="submit">Login</button>
+<!-- newly added -->
+               <a href="{{ route('social.redirect', 'google') }}" class="btn btn-danger">Login with Google</a> 
                 </form>
 
                 <p>

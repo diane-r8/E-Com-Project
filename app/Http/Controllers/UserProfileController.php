@@ -62,7 +62,7 @@ class UserProfileController extends Controller
             $user->profile()->create([]);
         }
 
-                // Handle profile picture removal
+        // Handle profile picture removal
         if ($request->has('remove_profile_picture') && $request->remove_profile_picture) {
             if ($user->profile->profile_picture && Storage::exists('public/' . $user->profile->profile_picture)) {
                 Storage::delete('public/' . $user->profile->profile_picture);
@@ -93,60 +93,55 @@ class UserProfileController extends Controller
             'gender' => $validated['gender'] ?? null,
         ]);
 
-        // Handle Two-Factor Authentication toggle
-        $user->update([
-            'user_type_enable' => $request->has('two_factor_enabled') ? 1 : 0,
-        ]);
-
         return redirect()->route('user.profile')->with('success', 'Profile updated successfully!');
     }
 
     // Update password separately
     public function updatePassword(Request $request)
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    $validated = $request->validate([
-        'current_password' => ['required'],
-        'password' => ['required', 'string', 'min:8', 'confirmed'],
-    ]);
+        $validated = $request->validate([
+            'current_password' => ['required'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
 
-    // Check if the current password matches
-    if (!Hash::check($validated['current_password'], $user->password)) {
-        return redirect()->route('user.profile')
-            ->withErrors(['current_password' => 'The current password is incorrect.'])
-            ->with('password_mode', true); // Keeps the password form open
+        // Check if the current password matches
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return redirect()->route('user.profile')
+                ->withErrors(['current_password' => 'The current password is incorrect.'])
+                ->with('password_mode', true); // Keeps the password form open
+        }
+
+        // Update the password
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return redirect()->route('user.profile')->with('success', 'Password changed successfully!');
     }
 
-    // Update the password
-    $user->update([
-        'password' => Hash::make($validated['password']),
-    ]);
+    // Delete the user's account
+    public function destroy()
+    {
+        $user = auth()->user();
 
-    return redirect()->route('user.profile')->with('success', 'Password changed successfully!');
-}
+        // Ensure the user has a profile and delete profile picture if exists
+        if ($user->profile && $user->profile->profile_picture) {
+            Storage::delete('public/' . $user->profile->profile_picture);
+        }
 
-public function destroy()
-{
-    $user = auth()->user();
+        // Delete the user profile (if applicable)
+        if ($user->profile) {
+            $user->profile()->delete();
+        }
 
-    // Ensure the user has a profile and delete profile picture if exists
-    if ($user->profile && $user->profile->profile_picture) {
-        Storage::delete('public/' . $user->profile->profile_picture);
+        // Log out the user before deleting
+        Auth::logout();
+
+        // Permanently delete the user (bypass soft delete)
+        $user->forceDelete();
+
+        return redirect('/')->with('success', 'Your account has been permanently deleted.');
     }
-
-    // Delete the user profile (if applicable)
-    if ($user->profile) {
-        $user->profile()->delete();
-    }
-
-    // Log out the user before deleting
-    Auth::logout();
-
-    // Permanently delete the user (bypass soft delete)
-    $user->forceDelete();
-
-    return redirect('/')->with('success', 'Your account has been permanently deleted.');
-}
-
 }
