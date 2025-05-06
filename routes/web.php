@@ -19,6 +19,8 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\PaymentController;
 
+Auth::routes(['verify' => true]);
+
 Route::get('/faq', function () {
     return view('faq');
 })->name('faq');
@@ -169,7 +171,7 @@ Route::post('/social-verify-otp', [App\Http\Controllers\SocialAuthController::cl
 
 
 //Cart Routes (Requires Authentication)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::match(['get', 'post'], '/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
     Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
@@ -221,11 +223,13 @@ Route::post('/buy-now', [CheckoutController::class, 'buyNow'])->name('buy-now')-
 
 // Payment routes
 Route::get('/payment/callback', [PaymentController::class, 'handleCallback'])->name('payment.callback');
+
    // Controller for Checkout
    // Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
    // Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('placeOrder');
+
 // New route specifically for Buy Now checkout
-Route::post('/buy-now/checkout', [CheckoutController::class, 'processBuyNow'])->name('processBuyNow')->middleware('auth');
+Route::middleware(['auth', 'verified'])->post('/buy-now', [CheckoutController::class, 'buyNow'])->name('buy-now');
 
 // Add this to web.php
 Route::get('/payment/process/{order_id}', [PaymentController::class, 'processPayment'])->name('payment.process');

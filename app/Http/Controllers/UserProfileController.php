@@ -144,8 +144,4 @@ class UserProfileController extends Controller
 
         return redirect('/')->with('success', 'Your account has been permanently deleted.');
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 38a15e2d664606616ee4493e704a2aeb4a07b644

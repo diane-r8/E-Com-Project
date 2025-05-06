@@ -9,11 +9,7 @@
         <div class="col-lg-8">
             <div class="card shadow-sm border-0 rounded-4">
                 <div class="card-body">
-<<<<<<< HEAD
-                    <form action="{{ route('placeOrder') }}" method="POST">
-=======
                     <form action="{{ route('processBuyNow') }}" method="POST">
->>>>>>> 38a15e2d664606616ee4493e704a2aeb4a07b644
                         @csrf
 
                         {{-- Full Name Field --}}

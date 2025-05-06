@@ -148,9 +148,6 @@ class SocialAuthController extends Controller
 
         // ❌ Invalid OTP, show error
         return redirect()->route('social.verify.otp.form')->with('error', 'Invalid or expired OTP. Please try again.');
+
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 38a15e2d664606616ee4493e704a2aeb4a07b644
