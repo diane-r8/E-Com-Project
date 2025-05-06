@@ -168,7 +168,7 @@ Route::post('/social-verify-otp', [App\Http\Controllers\SocialAuthController::cl
 
 
 //Cart Routes (Requires Authentication)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::match(['get', 'post'], '/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
     Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
@@ -184,7 +184,7 @@ Route::get('auth/{provider}', [SocialAuthController::class, 'redirect'])->name('
 Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
 
 // Checkout Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout'); // Shows the checkout page
     Route::post('/placeOrder', [CheckoutController::class, 'placeOrder'])->name('placeOrder'); // Handles checkout form submission
 });
