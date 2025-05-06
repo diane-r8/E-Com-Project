@@ -16,4 +16,3 @@ class Payment extends Model
         return $this->belongsTo(Order::class);
     }
 }
-

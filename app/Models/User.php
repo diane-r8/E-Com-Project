@@ -28,7 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'user_type', // optional if you're setting default as 'buyer'
         'two_factor_enabled',
-        'profile_picture',
+        'profile_picture',  //newly added
     ];
 
     /**
@@ -36,7 +36,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function profile()
     {
-        return $this->hasOne(UserProfile::class, 'user_id');
+        return $this->hasOne(UserProfile::class, 'user_id');//newly added
     }
 
     /**

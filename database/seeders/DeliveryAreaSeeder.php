@@ -1,12 +1,18 @@
 <?php
 namespace Database\Seeders; 
 
+
+
+
 use Illuminate\Database\Seeder;
 use App\Models\DeliveryArea;
 
 class DeliveryAreaSeeder extends Seeder
 {
     public function run()
+
+
+
     {
         DeliveryArea::truncate();
         DeliveryArea::insert([
@@ -18,4 +24,3 @@ class DeliveryAreaSeeder extends Seeder
         ]);
     }
 }
-

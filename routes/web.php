@@ -17,6 +17,7 @@ use App\Http\Controllers\XenditController;
 use App\Models\ProductVariation;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\PaymentController;
 
 Route::get('/faq', function () {
     return view('faq');
@@ -168,7 +169,7 @@ Route::post('/social-verify-otp', [App\Http\Controllers\SocialAuthController::cl
 
 
 //Cart Routes (Requires Authentication)
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::match(['get', 'post'], '/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
     Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
@@ -190,9 +191,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // POST route for payment processing (separate from checkout)
-Route::post('/payment', [PaymentController::class, 'process'])->name('payment.process');
 
-Route::post('/pay-with-gcash', [XenditController::class, 'payWithGCash'])->name('pay.gcash');
+// Payment routes
+//Route::post('/payment', [PaymentController::class, 'process'])->name('payment.process');
+//Route::get('/payment/choose/{order_id}', [PaymentController::class, 'choose'])->name('payment.choose');
+
 // Route::post('/pay-with-gcash', [XenditController::class, 'createPayment']);
 Route::get('/payment-success', function () {
     return 'Payment successful!';
@@ -201,7 +204,29 @@ Route::get('/payment-failed', function () {
     return 'Payment failed!';
 })->name('payment.failed');
 
+
+
+// Xendit payment routes
+Route::post('/pay-with-gcash', [XenditController::class, 'payWithGCash'])->name('pay.gcash');
+Route::post('/webhooks/xendit', [XenditController::class, 'webhook'])->name('xendit.webhook');
+
+
+//Route::get('/order/success/{order_id}', [CheckoutController::class, 'orderSuccess'])->name('order.success');
+
+// Checkout routes
+Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout')->middleware('auth');
+Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.place-order')->middleware('auth');
+Route::get('/order/success/{order_id}', [CheckoutController::class, 'orderSuccess'])->name('order.success')->middleware('auth');
+Route::post('/buy-now', [CheckoutController::class, 'buyNow'])->name('buy-now')->middleware('auth');
+
+// Payment routes
+Route::get('/payment/callback', [PaymentController::class, 'handleCallback'])->name('payment.callback');
    // Controller for Checkout
    // Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
    // Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('placeOrder');
+// New route specifically for Buy Now checkout
+Route::post('/buy-now/checkout', [CheckoutController::class, 'processBuyNow'])->name('processBuyNow')->middleware('auth');
+
+// Add this to web.php
+Route::get('/payment/process/{order_id}', [PaymentController::class, 'processPayment'])->name('payment.process');
 

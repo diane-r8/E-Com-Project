@@ -9,7 +9,11 @@
         <div class="col-lg-8">
             <div class="card shadow-sm border-0 rounded-4">
                 <div class="card-body">
+<<<<<<< HEAD
                     <form action="{{ route('placeOrder') }}" method="POST">
+=======
+                    <form action="{{ route('processBuyNow') }}" method="POST">
+>>>>>>> 38a15e2d664606616ee4493e704a2aeb4a07b644
                         @csrf
 
                         {{-- Full Name Field --}}
@@ -65,6 +69,24 @@
                             </label>
                         </div>
 
+                        {{-- Payment Method Section --}}
+                        <h5 class="mb-3">Payment Method</h5>
+                        <div class="mb-4">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment_gcash" value="gcash" required>
+                                <label class="form-check-label d-flex align-items-center" for="payment_gcash">
+                                    <img src="{{ asset('images/gcash-seeklogo.png') }}" alt="GCash" height="30" class="me-2">
+                                    GCash (via Xendit)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment_cod" value="COD" required>
+                                <label class="form-check-label d-flex align-items-center" for="payment_cod">
+                                <img src="{{ asset('images/cod.png') }}" alt="COD" height="30" class="me-2">
+                                    Cash on Delivery (COD)
+                                </label>
+                            </div>
+                        </div>
 
                         {{-- Rush Order --}}
                         <div class="form-check mb-4">
@@ -82,7 +104,7 @@
                         {{-- Submit Button --}}
                         <div class="text-end">
                             <button type="submit" class="btn btn-success btn-lg w-100">
-                                <i class="bi bi-credit-card-fill"></i> Proceed to Payment
+                                <i class="bi bi-check-circle-fill"></i> Complete Purchase
                             </button>
                         </div>
                     </form>
@@ -149,6 +171,28 @@
                         </li>
                     </ul>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Order Success Modal --}}
+<div class="modal fade" id="orderSuccessModal" tabindex="-1" aria-labelledby="orderSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="orderSuccessModalLabel">Order Placed Successfully!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h5>Thank you for your order!</h5>
+                <p id="orderSuccessMessage">Your order has been received and is being processed.</p>
+            </div>
+            <div class="modal-footer justify-content-center border-0">
+                <a href="{{ route('home') }}" class="btn btn-primary">Continue Shopping</a>
             </div>
         </div>
     </div>
