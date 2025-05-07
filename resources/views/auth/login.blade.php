@@ -36,8 +36,11 @@
                         <label for="remember">Remember Me</label>
                     </div>
                     <button type="submit">Login</button>
-<!-- newly added -->
-               <a href="{{ route('social.redirect', 'google') }}" class="btn btn-danger">Login with Google</a> 
+
+                    <!-- Google Login Button (Updated Style) -->
+                    <a href="{{ route('social.redirect', 'google') }}" class="btn btn-google">
+                        <i class="bi bi-google"></i> Login with Google
+                    </a>
                 </form>
                 <p>
                     Don't have an account? <a href="{{ route('register') }}">Register here</a>.

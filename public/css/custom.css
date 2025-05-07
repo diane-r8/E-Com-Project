@@ -668,15 +668,16 @@ body {
 
 /* Login Button Styling */
 .login-form form button {
-    background-color: #5D6E54;  /* Same as the contact section */
+    background-color: #668554;  /* Same as the contact section */
     color: #FEFBE9;  /* Light color for text */
-    border: none;
+    border: 1px solid #000; /* Black border */
     padding: 12px;  /* Increased padding for the button */
     font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.3s;
-    margin-bottom: 20px;  /* Adds space between button and the text below */
+    margin-bottom: 5px;  /* Adds space between button and the text below */
 }
 
 .login-form form button:hover {
@@ -704,6 +705,33 @@ body {
     color: red;
     font-size: 14px;
     margin-top: 10px;
+}
+
+
+/* Style for the Google Login Button */
+.btn-google {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Full width */
+    padding: 12px 20px; /* Button padding */
+    background-color: #d2b48c; /* Light brown background */
+    border: 1px solid #000; /* Black border */
+    border-radius: 5px; /* Rounded corners */
+    color: black; /* Black text */
+    font-size: 16px; /* Font size */
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 15px; /* Reduced margin for the Google button */
+}
+
+.btn-google:hover {
+    background-color: #c4a17f; /* Darker brown shade on hover */
+}
+
+.btn-google i {
+    margin-right: 8px; /* Space between the icon and text */
 }
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -916,11 +944,6 @@ transition: background-color 0.3s ease; /* Smooth transition */
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------- */
 /* USER'S VIEW PRODUCTS */
-/* -------------------------- Global Styles -------------------------- */
-.product-quick-view i, .product-add-to-cart i {
-    margin-right: 6px; /* Space between icon and text */
-    font-size: 1.2rem; /* Icon size */
-}
 
 /* -------------------------- Product Card Styles -------------------------- */
 .product-card {
@@ -1008,41 +1031,51 @@ transition: background-color 0.3s ease; /* Smooth transition */
 }
 
 /* -------------------------- Button Styles -------------------------- */
-.product-quick-view, .product-add-to-cart {
+.product-action-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 100%; /* Full width for buttons */
-    padding: 12px 0; /* Equal padding */
+    width: 100%; /* Make buttons full-width */
+    height: 40px;
+    padding: 0 16px;
     font-size: 1rem;
-    cursor: pointer;
-    border-radius: 5px;
     font-weight: 500;
-    border: 1px solid transparent;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
     transition: all 0.3s ease;
+    color: white;
     white-space: nowrap;
     box-sizing: border-box;
-    height: 30px; /* Equal height for both buttons */
 }
 
-.product-quick-view {
-    background-color: rgb(175, 175, 173); 
-    color: #333; /* Dark text */
-}
-
+/* Add to Cart (Green) */
 .product-add-to-cart {
-    background-color: #8eb47a;
-    color: white; /* White text */
-}
-
-/* Button Hover Effects */
-.product-quick-view:hover {
-    background-color: rgb(205, 205, 199); 
+    background-color: #4CAF50; /* Green */
 }
 
 .product-add-to-cart:hover {
-    background-color: #6b9b58;
+    background-color: #3e8e41;
 }
+
+/* Buy Now (Blue) */
+.product-buy-now {
+    background-color: #007bff; /* Bootstrap blue */
+}
+
+.product-buy-now:hover {
+    background-color: #0069d9;
+}
+
+/* Continue Shopping (Orange) */
+.product-continue-shopping {
+    background-color: #fd7e14; /* Bootstrap orange */
+}
+
+.product-continue-shopping:hover {
+    background-color: #e66900;
+}
+
 
 /* -------------------------- Product Actions Container -------------------------- */
 .product-actions {
@@ -1172,20 +1205,4 @@ transition: background-color 0.3s ease; /* Smooth transition */
     font-size: 16px; /* Set consistent font size */
 }
 
-/* Add to Cart Button */
-.btn-custom-add-to-cart {
-    background-color: #4CAF50; /* Green */
-}
 
-.btn-custom-add-to-cart:hover {
-    background-color: #45a049; /* Darker green */
-}
-
-/* Continue Shopping Button */
-.btn-custom-continue-shopping {
-    background-color: #f0ad4e; /* Orange */
-}
-
-.btn-custom-continue-shopping:hover {
-    background-color: #ec971f; /* Darker orange */
-}
