@@ -17,7 +17,7 @@ return new class extends Migration {
             // Re-add foreign key if needed
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
-    }$table->foreignId('user_id')->constrained()->onDelete('cascade');
+    }
 
     public function down(): void
     {
@@ -27,4 +27,5 @@ return new class extends Migration {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
+    
 };

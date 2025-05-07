@@ -10,6 +10,7 @@ use App\Models\ProductVariation;
 use App\Models\DeliveryArea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\PaymentController;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -22,7 +23,7 @@ class CheckoutController extends Controller
         
         // Check if this is a "Buy Now" request
         if ($request->has('buy_now') && session()->has('buy_now_item')) {
-            // Fetch the buy now item
+            // Fetch the buy now item from session
             $cart = session()->get('buy_now_item');
             $isBuyNow = true;
         } else {
@@ -30,33 +31,10 @@ class CheckoutController extends Controller
             $cartItems = CartItem::with('product', 'productVariation')
                 ->where('user_id', $user->id)
                 ->get();
-            
+                
             // Filter selected items if provided in the request
             $selectedIds = $request->input('selected_items', []);
             if (!empty($selectedIds)) {
-                foreach ($selectedIds as $id) {
-                    if (isset($allCart[$id])) {
-                        $cart[$id] = $allCart[$id];
-                    }
-                }
-            } else {
-                $cart = $allCart;
-            }
-            
-            $isBuyNow = false;
-        }
-
-        \Log::info('Checkout method', [
-            'cart' => $cart,
-            'is_buy_now' => $isBuyNow,
-            'request_all' => $request->all()
-        ]);
-
-        if (empty($cart)) {
-            return redirect()->route('cart')->with('error', 'Your cart is empty or no items were selected.');
-        }
-
-        // ✅ Use filtered cart to calculate total
                 $cartItems = $cartItems->whereIn('id', $selectedIds);
             }
 
@@ -78,7 +56,15 @@ class CheckoutController extends Controller
                     'variation_name' => $item->productVariation ? $item->productVariation->name : null,
                 ];
             }
+            
+            $isBuyNow = false;
         }
+
+        \Log::info('Checkout method', [
+            'cart' => $cart,
+            'is_buy_now' => $isBuyNow,
+            'request_all' => $request->all()
+        ]);
 
         // Calculate total price
         $totalPrice = array_reduce($cart, function ($carry, $item) {
@@ -109,16 +95,17 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Place an order specifically from the cart
+     * Place an order specifically from the cart in the database
      */
     public function placeCartOrder(Request $request)
     {
         // Log all data to debug
         \Log::info('placeCartOrder method called', [
-            'request_data' => $request->all(),
-            'session_cart' => session()->get('cart'),
+            'request_data' => $request->all()
         ]);
 
+        $user = Auth::user();
+        
         // Basic validation
         $validated = $request->validate([
             'full_name' => 'required|string',
@@ -128,18 +115,34 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:gcash,COD,GCash',
         ]);
         
-        // Get cart data directly from session
-        $cart = session()->get('cart', []);
+        // Get cart data from the database
+        $cartItems = CartItem::with('product', 'productVariation')
+            ->where('user_id', $user->id)
+            ->get();
         
-        if (empty($cart)) {
+        if ($cartItems->isEmpty()) {
             \Log::error('Cart is empty in placeCartOrder');
             return redirect()->route('cart')->with('error', 'Your cart is empty.');
         }
         
-        \Log::info('Cart contains items', ['cart_count' => count($cart)]);
+        \Log::info('Cart contains items', ['cart_count' => $cartItems->count()]);
+        
+        // Convert cart items to array format for processing
+        $cart = [];
+        foreach ($cartItems as $item) {
+            $cart[$item->id] = [
+                'product_id' => $item->product->id,
+                'product_name' => $item->product->name,
+                'price' => $item->price,
+                'quantity' => $item->quantity,
+                'image' => $item->product->image,
+                'variation_id' => $item->productVariation ? $item->productVariation->id : null,
+                'variation_name' => $item->productVariation ? $item->productVariation->name : null,
+            ];
+        }
         
         // Calculate totals
-        $totalPrice = array_reduce($cart, function ($carry, $item) {
+        $subtotal = array_reduce($cart, function ($carry, $item) {
             return $carry + ($item['price'] * $item['quantity']);
         }, 0);
         
@@ -148,12 +151,12 @@ class CheckoutController extends Controller
         $rushOrderFee = $request->has('rush_order') ? 50 : 0;
         
         // Calculate final total
-        $totalPrice += $deliveryFee + $rushOrderFee;
+        $totalPrice = $subtotal + $deliveryFee + $rushOrderFee;
         
         try {
             // Create a new order
             $order = new Order();
-            $order->user_id = auth()->id();
+            $order->user_id = $user->id;
             $order->full_name = $validated['full_name'];
             $order->phone_number = $validated['phone_number'];
             $order->delivery_area_id = $validated['delivery_area_id'];
@@ -167,21 +170,31 @@ class CheckoutController extends Controller
             $order->payment_status = 'Pending';
             $order->is_rush = $request->has('is_rush') ? true : false;
             
-            // Handle is_default
-            $order->is_default = false;
+            // Handle is_default to avoid constraint violation
+            if ($request->has('is_default') && $request->is_default) {
+                // If user wants this as default, find any existing default and update it first
+                Order::where('user_id', $user->id)
+                     ->where('is_default', true)
+                     ->update(['is_default' => false]);
+                
+                $order->is_default = true;
+            } else {
+                $order->is_default = false;
+            }
+            
             $order->save();
             
             \Log::info('Order created', ['order_id' => $order->id]);
             
             // Create order items
-            foreach ($cart as $productId => $item) {
+            foreach ($cart as $item) {
                 $orderItem = new OrderItem();
                 $orderItem->order_id = $order->id;
-                $orderItem->product_id = $item['product_id'] ?? $productId;
+                $orderItem->product_id = $item['product_id'];
                 $orderItem->price = $item['price'];
                 $orderItem->quantity = $item['quantity'];
                 
-                if (isset($item['variation_id'])) {
+                if (isset($item['variation_id']) && $item['variation_id']) {
                     $orderItem->variation_id = $item['variation_id'];
                 }
                 
@@ -189,8 +202,25 @@ class CheckoutController extends Controller
                 \Log::info('Order item created', ['order_item_id' => $orderItem->id]);
             }
             
-            // Clear the cart
-            session()->forget('cart');
+            // Save address as default if requested
+            if ($request->has('is_default') && $request->is_default) {
+                if (Schema::hasColumn('users', 'default_address')) {
+                    $user->default_address = $validated['shipping_address'];
+                }
+                if (Schema::hasColumn('users', 'default_landmark')) {
+                    $user->default_landmark = $request->landmark;
+                }
+                if (Schema::hasColumn('users', 'default_phone')) {
+                    $user->default_phone = $validated['phone_number'];
+                }
+                if (Schema::hasColumn('users', 'default_area_id')) {
+                    $user->default_area_id = $validated['delivery_area_id'];
+                }
+                $user->save();
+            }
+            
+            // Clear the cart from database
+            CartItem::where('user_id', $user->id)->delete();
             
             // Handle payment method
             if (strtolower($validated['payment_method']) == 'gcash') {
@@ -211,189 +241,6 @@ class CheckoutController extends Controller
             return redirect()->route('cart')->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
-
-    /**
-     * Legacy placeOrder method - kept for compatibility but not used for cart checkout anymore
-     */
-    public function placeOrder(Request $request)
-    {
-        $validated = $request->validate([
-            'full_name' => 'required|string',
-            'phone_number' => 'required|string',
-            'delivery_area_id' => 'required',
-            'shipping_address' => 'required|string',
-            'payment_method' => 'required|in:gcash,COD', // Ensure valid payment methods
-        ]);
-
-        $user = Auth::user();
-
-        // Fetch cart items or buy now item
-        if (session()->has('buy_now_item')) {
-            $cart = session()->get('buy_now_item');
-            session()->forget('buy_now_item'); // Clear buy now item from session
-        } else {
-            $cartItems = CartItem::with('product', 'productVariation')
-                ->where('user_id', $user->id)
-                ->get();
-
-            if ($cartItems->isEmpty()) {
-                return redirect()->route('cart')->with('error', 'Your cart is empty.');
-            }
-
-            // Prepare cart items
-            $cart = [];
-            foreach ($cartItems as $item) {
-                $cart[$item->id] = [
-                    'product_id' => $item->product->id,
-                    'product_name' => $item->product->name,
-                    'price' => $item->price,
-                    'quantity' => $item->quantity,
-                    'image' => $item->product->image,
-                    'variation_id' => $item->productVariation ? $item->productVariation->id : null,
-                    'variation_name' => $item->productVariation ? $item->productVariation->name : null,
-                ];
-            }
-        }
-
-        // Calculate total price
-        $totalPrice = array_reduce($cart, function ($carry, $item) {
-            return $carry + ($item['price'] * $item['quantity']);
-        }, 0);
-
-        // Get delivery area details
-        $area = DeliveryArea::find($request->delivery_area_id);
-        $deliveryFee = $area ? $area->delivery_fee : 0;
-
-        // Check if rush order is requested
-        $rushOrderFee = $request->has('rush_order') ? 50 : 0;
-
-        // Add delivery and rush fees to the total
-        $totalPrice += $deliveryFee + $rushOrderFee;
-
-        // Create the order
-        $order = new Order();
-        $order->user_id = $user->id;
-        $order->full_name = $validated['full_name'];
-        $order->phone_number = $validated['phone_number'];
-        $order->delivery_area_id = $validated['delivery_area_id'];
-        $order->shipping_address = $validated['shipping_address'];
-        $order->landmark = $request->landmark;
-        $order->total_price = $totalPrice;
-        $order->delivery_fee = $deliveryFee;
-        $order->rush_order_fee = $rushOrderFee;
-        $order->status = 'Pending';
-        $order->payment_method = $validated['payment_method'];
-        $order->payment_status = 'Pending';
-        $order->is_rush = $request->has('is_rush') ? true : false;
-        $order->save();
-
-        // Add order items
-        foreach ($cart as $item) {
-            $orderItem = new OrderItem();
-            $orderItem->order_id = $order->id;
-            $orderItem->product_id = $item['product_id'];
-            $orderItem->price = $item['price'];
-            $orderItem->quantity = $item['quantity'];
-
-            if (isset($item['variation_id'])) {
-                $orderItem->variation_id = $item['variation_id'];
-            }
-
-            $orderItem->save();
-        }
-
-        // Clear cart after order if it's not a Buy Now purchase
-        if (!session()->has('buy_now_item')) {
-            CartItem::where('user_id', $user->id)->delete();
-        }
-
-        // Handle payment method (e.g., GCash)
-        if ($validated['payment_method'] === 'gcash') {
-            return app(PaymentController::class)->createPayment($order);
-        }
-
-        // Redirect to success page for COD or other payment methods
-        return redirect()->route('order.success', ['order_id' => $order->id]);
-    }
-    public function downloadReceipt($orderId)
-    {
-        $order = Order::findOrFail($orderId);
-        $orderItems = OrderItem::where('order_id', $orderId)->get();
-        
-        // Load product details for display
-        foreach ($orderItems as $item) {
-            // Load product information
-            $item->product = Product::find($item->product_id);
-            
-            // Load variation information if available
-            if ($item->variation_id) {
-                $item->variation = ProductVariation::find($item->variation_id);
-            }
-        }
-        
-        // Check if user is authorized to view this receipt (if not an admin)
-        if (auth()->id() != $order->user_id && !(auth()->user() && auth()->user()->is_admin)) {
-            return redirect()->route('home')->with('error', 'You are not authorized to view this receipt.');
-        }
-        
-        // Set current time for the receipt
-        $currentTime = Carbon::now('Asia/Manila');
-        
-        // Generate the receipt PDF
-        $pdf = PDF::loadView('order.receipt-pdf', [
-            'order' => $order,
-            'orderItems' => $orderItems,
-            'currentTime' => $currentTime
-        ]);
-        
-        return $pdf->download('Crafts-N-Wraps-Order-'.$order->id.'-Receipt.pdf');
-    }
-    public function orderSuccess($orderId)
-    {
-        $order = Order::findOrFail($orderId);
-        $orderItems = OrderItem::where('order_id', $orderId)->get();
-
-        // Fetch product details for display
-        foreach ($orderItems as $item) {
-            $item->product = Product::find($item->product_id);
-
-            if ($item->variation_id) {
-                $item->variation = ProductVariation::find($item->variation_id);
-            }
-        }
-
-        return view('order.success', compact('order', 'orderItems'));
-    }
-
-    // Similar to Buy Now logic in the new controller
-    public function buyNow(Request $request)
-    {
-        $productId = $request->input('product_id');
-        $variationId = $request->input('variation_id');
-        $quantity = $request->input('quantity', 1);
-        
-        $product = Product::findOrFail($productId);
-        $variation = $variationId ? ProductVariation::findOrFail($variationId) : null;
-        
-        $item = [
-            'product_id' => $product->id,
-            'product_name' => $product->name,
-            'price' => $variation ? $variation->price : $product->price,
-            'quantity' => $quantity,
-            'image' => $product->image,
-        ];
-
-        if ($variation) {
-            $item['variation_id'] = $variation->id;
-            $item['variation_name'] = $variation->name;
-        }
-
-        // Store in session
-        session()->put('buy_now_item', [$product->id => $item]);
-
-        return redirect()->route('checkout', ['buy_now' => true]);
-    }
-
 
     /**
      * Process a Buy Now order directly.
@@ -457,7 +304,9 @@ class CheckoutController extends Controller
             $order->payment_method = $validated['payment_method'];
             $order->payment_status = 'Pending';
             $order->is_rush = $request->has('is_rush') ? true : false;
-            // Important: SKIP setting is_default for now
+            
+            // Important: SKIP setting is_default for now to avoid constraints
+            $order->is_default = false;
             $order->save();
             
             \Log::info('Order created', ['order_id' => $order->id]);
@@ -469,7 +318,7 @@ class CheckoutController extends Controller
             $orderItem->price = $item['price'];
             $orderItem->quantity = $item['quantity'];
             
-            if (isset($item['variation_id'])) {
+            if (isset($item['variation_id']) && $item['variation_id']) {
                 $orderItem->variation_id = $item['variation_id'];
             }
             
@@ -498,5 +347,91 @@ class CheckoutController extends Controller
             
             return back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
+    }
+
+    public function orderSuccess($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        $orderItems = OrderItem::where('order_id', $orderId)->get();
+
+        // Fetch product details for display
+        foreach ($orderItems as $item) {
+            $item->product = Product::find($item->product_id);
+
+            if ($item->variation_id) {
+                $item->variation = ProductVariation::find($item->variation_id);
+            }
+        }
+
+        return view('order.success', compact('order', 'orderItems'));
+    }
+
+    public function buyNow(Request $request)
+    {
+        $productId = $request->input('product_id');
+        $variationId = $request->input('variation_id');
+        $quantity = $request->input('quantity', 1);
+        
+        $product = Product::findOrFail($productId);
+        $variation = $variationId ? ProductVariation::findOrFail($variationId) : null;
+        
+        $item = [
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'price' => $variation ? $variation->price : $product->price,
+            'quantity' => $quantity,
+            'image' => $product->image,
+        ];
+
+        if ($variation) {
+            $item['variation_id'] = $variation->id;
+            $item['variation_name'] = $variation->name;
+        }
+
+        // Store in session
+        session()->put('buy_now_item', [$product->id => $item]);
+
+        return redirect()->route('checkout', ['buy_now' => true]);
+    }
+    
+    public function downloadReceipt($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        $orderItems = OrderItem::where('order_id', $orderId)->get();
+        
+        // Load product details for display
+        foreach ($orderItems as $item) {
+            // Load product information
+            $item->product = Product::find($item->product_id);
+            
+            // Load variation information if available
+            if ($item->variation_id) {
+                $item->variation = ProductVariation::find($item->variation_id);
+            }
+        }
+        
+        // Check if user is authorized to view this receipt (if not an admin)
+        if (auth()->id() != $order->user_id && !(auth()->user() && auth()->user()->is_admin)) {
+            return redirect()->route('home')->with('error', 'You are not authorized to view this receipt.');
+        }
+        
+        // Set current time for the receipt with correct timezone
+        $currentTime = Carbon::now('Asia/Manila');
+        
+        // Generate the receipt PDF
+        $pdf = PDF::loadView('order.receipt-pdf', [
+            'order' => $order,
+            'orderItems' => $orderItems,
+            'currentTime' => $currentTime
+        ]);
+        
+        // Configure PDF options
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'dejavu sans'
+        ]);
+        
+        return $pdf->download('Crafts-N-Wraps-Order-'.$order->id.'-Receipt.pdf');
     }
 }

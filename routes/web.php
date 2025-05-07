@@ -18,6 +18,7 @@ use App\Models\ProductVariation;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\PaymentController;
+use App\Models\User;
 
 Auth::routes(['verify' => true]);
 
