@@ -4,62 +4,69 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductVariation;
 use App\Models\DeliveryArea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\PaymentController;
 
 class CheckoutController extends Controller
 {
     public function checkout(Request $request)
     {
+        $user = Auth::user();
+        
         // Check if this is a "Buy Now" request
         if ($request->has('buy_now') && session()->has('buy_now_item')) {
+            // Fetch the buy now item
             $cart = session()->get('buy_now_item');
         } else {
-            $allCart = session()->get('cart', []); // Retrieve the full cart from session
-
-            // ✅ Handle selected items passed via GET
+            // Retrieve cart items from the database
+            $cartItems = CartItem::with('product', 'productVariation')
+                ->where('user_id', $user->id)
+                ->get();
+            
+            // Filter selected items if provided in the request
             $selectedIds = $request->input('selected_items', []);
-            $cart = [];
-
             if (!empty($selectedIds)) {
-                foreach ($selectedIds as $id) {
-                    if (isset($allCart[$id])) {
-                        $cart[$id] = $allCart[$id];
-                    }
-                }
-            } else {
-                $cart = $allCart;
+                $cartItems = $cartItems->whereIn('id', $selectedIds);
+            }
+
+            // If no items, redirect to cart
+            if ($cartItems->isEmpty()) {
+                return redirect()->route('cart')->with('error', 'Your cart is empty or no items were selected.');
+            }
+            
+            // Prepare the cart items in the same format as the session cart
+            $cart = [];
+            foreach ($cartItems as $item) {
+                $cart[$item->id] = [
+                    'product_id' => $item->product->id,
+                    'product_name' => $item->product->name,
+                    'price' => $item->price,
+                    'quantity' => $item->quantity,
+                    'image' => $item->product->image,
+                    'variation_id' => $item->productVariation ? $item->productVariation->id : null,
+                    'variation_name' => $item->productVariation ? $item->productVariation->name : null,
+                ];
             }
         }
 
-        if (empty($cart)) {
-            return redirect()->route('cart')->with('error', 'Your cart is empty or no items were selected.');
-        }
-
-        // ✅ Use filtered cart to calculate total
+        // Calculate total price
         $totalPrice = array_reduce($cart, function ($carry, $item) {
             return $carry + ($item['price'] * $item['quantity']);
         }, 0);
 
-        // Prepare for delivery fee and rush order fee
+        // Handle delivery and rush fees
         $deliveryFee = 0;
         $rushOrderFee = 0;
 
         if ($request->has('delivery_area')) {
             // Fetch delivery fee from the database
-            $deliveryArea = $request->delivery_area;
-            $area = DeliveryArea::where('area_name', $deliveryArea)->first();
-
-            if ($area) {
-                $deliveryFee = $area->delivery_fee;
-            } else {
-                $deliveryFee = 0; // Default to 0 if not found
-            }
+            $area = DeliveryArea::where('area_name', $request->delivery_area)->first();
+            $deliveryFee = $area ? $area->delivery_fee : 0;
         }
 
         if ($request->has('rush_order') && $request->rush_order) {
@@ -82,37 +89,57 @@ class CheckoutController extends Controller
             'phone_number' => 'required|string',
             'delivery_area_id' => 'required',
             'shipping_address' => 'required|string',
-            'payment_method' => 'required|in:gcash,COD,GCash', // Add this validation rule
+            'payment_method' => 'required|in:gcash,COD', // Ensure valid payment methods
         ]);
-    
-        // Check if this was a "Buy Now" purchase
+
+        $user = Auth::user();
+
+        // Fetch cart items or buy now item
         if (session()->has('buy_now_item')) {
             $cart = session()->get('buy_now_item');
-            session()->forget('buy_now_item'); // Clear the "Buy Now" item
+            session()->forget('buy_now_item'); // Clear buy now item from session
         } else {
-            $cart = session()->get('cart', []);
+            $cartItems = CartItem::with('product', 'productVariation')
+                ->where('user_id', $user->id)
+                ->get();
+
+            if ($cartItems->isEmpty()) {
+                return redirect()->route('cart')->with('error', 'Your cart is empty.');
+            }
+
+            // Prepare cart items
+            $cart = [];
+            foreach ($cartItems as $item) {
+                $cart[$item->id] = [
+                    'product_id' => $item->product->id,
+                    'product_name' => $item->product->name,
+                    'price' => $item->price,
+                    'quantity' => $item->quantity,
+                    'image' => $item->product->image,
+                    'variation_id' => $item->productVariation ? $item->productVariation->id : null,
+                    'variation_name' => $item->productVariation ? $item->productVariation->name : null,
+                ];
+            }
         }
-    
-        if (empty($cart)) {
-            return redirect()->route('cart')->with('error', 'Your cart is empty.');
-        }
-    
+
+        // Calculate total price
         $totalPrice = array_reduce($cart, function ($carry, $item) {
             return $carry + ($item['price'] * $item['quantity']);
         }, 0);
-    
+
         // Get delivery area details
         $area = DeliveryArea::find($request->delivery_area_id);
         $deliveryFee = $area ? $area->delivery_fee : 0;
-    
+
         // Check if rush order is requested
         $rushOrderFee = $request->has('rush_order') ? 50 : 0;
-        
-        // Calculate final total
+
+        // Add delivery and rush fees to the total
         $totalPrice += $deliveryFee + $rushOrderFee;
-    
+
+        // Create the order
         $order = new Order();
-        $order->user_id = auth()->id();
+        $order->user_id = $user->id;
         $order->full_name = $validated['full_name'];
         $order->phone_number = $validated['phone_number'];
         $order->delivery_area_id = $validated['delivery_area_id'];
@@ -124,36 +151,9 @@ class CheckoutController extends Controller
         $order->status = 'Pending';
         $order->payment_method = $validated['payment_method'];
         $order->payment_status = 'Pending';
-        $order->is_rush = $request->has('is_rush');
-        
-        // IMPORTANT: Handle is_default to avoid constraint violation
-        if ($request->has('is_default') && $request->is_default) {
-            // If user wants this as default, find any existing default and update it first
-            Order::where('user_id', auth()->id())
-                 ->where('is_default', true)
-                 ->update(['is_default' => false]);
-            
-            $order->is_default = true;
-        } else {
-            // Since we need an order, find and delete a previous non-default order for this user if it exists
-            // Only do this if this is a "buy now" order to avoid deleting legitimate past orders
-            if ($request->has('buy_now') && $request->buy_now) {
-                $existingNonDefaultOrder = Order::where('user_id', auth()->id())
-                                               ->where('is_default', false)
-                                               ->where('status', 'Pending') // Only delete pending orders
-                                               ->first();
-                                               
-                if ($existingNonDefaultOrder) {
-                    $existingNonDefaultOrder->delete();
-                }
-            }
-            
-            $order->is_default = false;
-        }
-        
+        $order->is_rush = $request->has('is_rush') ? true : false;
         $order->save();
 
-    
         // Add order items
         foreach ($cart as $item) {
             $orderItem = new OrderItem();
@@ -161,45 +161,25 @@ class CheckoutController extends Controller
             $orderItem->product_id = $item['product_id'];
             $orderItem->price = $item['price'];
             $orderItem->quantity = $item['quantity'];
-            
-            // Only set variation_id if it exists in the cart item
+
             if (isset($item['variation_id'])) {
                 $orderItem->variation_id = $item['variation_id'];
             }
-            
+
             $orderItem->save();
         }
-    
-        // Save address as default if requested
-        if ($request->has('is_default') && $request->is_default) {
-            $user = Auth::user();
-            if (Schema::hasColumn('users', 'default_address')) {
-                $user->default_address = $validated['shipping_address'];
-            }
-            if (Schema::hasColumn('users', 'default_landmark')) {
-                $user->default_landmark = $request->landmark;
-            }
-            if (Schema::hasColumn('users', 'default_phone')) {
-                $user->default_phone = $validated['phone_number'];
-            }
-            if (Schema::hasColumn('users', 'default_area_id')) {
-                $user->default_area_id = $validated['delivery_area_id'];
-            }
-            $user->save();
-        }
-        
-        // Clear cart if this wasn't a "Buy Now" purchase
+
+        // Clear cart after order if it's not a Buy Now purchase
         if (!session()->has('buy_now_item')) {
-            session()->forget('cart');
+            CartItem::where('user_id', $user->id)->delete();
         }
-    
-        // Handle payment method
-        if ($request->input('payment_method') === 'gcash') {
-            // Create a payment record and redirect to Xendit
+
+        // Handle payment method (e.g., GCash)
+        if ($validated['payment_method'] === 'gcash') {
             return app(PaymentController::class)->createPayment($order);
         }
-    
-        // For COD or other payment methods, redirect to success page
+
+        // Redirect to success page for COD or other payment methods
         return redirect()->route('order.success', ['order_id' => $order->id]);
     }
 
@@ -207,21 +187,20 @@ class CheckoutController extends Controller
     {
         $order = Order::findOrFail($orderId);
         $orderItems = OrderItem::where('order_id', $orderId)->get();
-        
+
         // Fetch product details for display
         foreach ($orderItems as $item) {
-            // Load product information
             $item->product = Product::find($item->product_id);
-            
-            // Load variation information if available
+
             if ($item->variation_id) {
                 $item->variation = ProductVariation::find($item->variation_id);
             }
         }
-        
+
         return view('order.success', compact('order', 'orderItems'));
     }
 
+    // Similar to Buy Now logic in the new controller
     public function buyNow(Request $request)
     {
         $productId = $request->input('product_id');
@@ -229,34 +208,24 @@ class CheckoutController extends Controller
         $quantity = $request->input('quantity', 1);
         
         $product = Product::findOrFail($productId);
+        $variation = $variationId ? ProductVariation::findOrFail($variationId) : null;
         
-        // Get variation if provided
-        $variation = null;
-        if ($variationId) {
-            $variation = ProductVariation::findOrFail($variationId);
-        }
-        
-        // Create buy now item with all necessary information
         $item = [
             'product_id' => $product->id,
-            'product_name' => $product->name, // Add product name
+            'product_name' => $product->name,
             'price' => $variation ? $variation->price : $product->price,
             'quantity' => $quantity,
-            'image' => $product->image // Add product image if used in checkout view
+            'image' => $product->image,
         ];
-        
+
         if ($variation) {
             $item['variation_id'] = $variation->id;
-            $item['variation_name'] = $variation->name; // Add variation name
-        } else {
-            // Ensure variation_name exists even if null (to prevent errors)
-            $item['variation_name'] = null;
+            $item['variation_name'] = $variation->name;
         }
-        
+
         // Store in session
         session()->put('buy_now_item', [$product->id => $item]);
-        
-        // Redirect to checkout
+
         return redirect()->route('checkout', ['buy_now' => true]);
     }
 

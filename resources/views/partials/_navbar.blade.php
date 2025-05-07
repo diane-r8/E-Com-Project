@@ -49,21 +49,24 @@
 </form>
             <!-- Cart Icon with Item Count chagned -->
             @auth
-            <a href="{{ route('cart') }}" class="cart-icon position-relative text-dark">
-                <i class="bi bi-cart3 fs-3"></i>
-                <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">    
-                    {{ session('cart') ? count(session('cart')) : 0 }}
-                </span>
-            </a>
-            @else
-                <!-- Guests: Redirect to login page -->
-                <a href="{{ route('login') }}" class="cart-icon position-relative text-dark">
-                    <i class="bi bi-cart3 fs-3"></i>
-                    <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        {{ session('cart') ? count(session('cart')) : 0 }}
-                    </span>
-                </a>
-            @endauth
+          @php
+              $cartCount = \App\Models\CartItem::where('user_id', auth()->id())->count();
+          @endphp
+          <a href="{{ route('cart') }}" class="cart-icon position-relative text-dark">
+              <i class="bi bi-cart3 fs-3"></i>
+              <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  {{ $cartCount }}
+              </span>
+          </a>
+          @else
+          <a href="{{ route('login') }}" class="cart-icon position-relative text-dark">
+              <i class="bi bi-cart3 fs-3"></i>
+              <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  0
+              </span>
+          </a>
+          @endauth
+
             
             <!-- Profile Icon -->
             <div class="profile-icon">

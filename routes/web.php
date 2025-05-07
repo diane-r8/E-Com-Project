@@ -229,7 +229,7 @@ Route::get('/payment/callback', [PaymentController::class, 'handleCallback'])->n
    // Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('placeOrder');
 
 // New route specifically for Buy Now checkout
-Route::middleware(['auth', 'verified'])->post('/buy-now', [CheckoutController::class, 'buyNow'])->name('buy-now');
+Route::post('/buy-now/checkout', [CheckoutController::class, 'processBuyNow'])->name('processBuyNow')->middleware('auth');
 
 // Add this to web.php
 Route::get('/payment/process/{order_id}', [PaymentController::class, 'processPayment'])->name('payment.process');
