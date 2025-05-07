@@ -11,6 +11,8 @@ use App\Models\DeliveryArea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\PaymentController;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class CheckoutController extends Controller
 {
@@ -22,6 +24,7 @@ class CheckoutController extends Controller
         if ($request->has('buy_now') && session()->has('buy_now_item')) {
             // Fetch the buy now item
             $cart = session()->get('buy_now_item');
+            $isBuyNow = true;
         } else {
             // Retrieve cart items from the database
             $cartItems = CartItem::with('product', 'productVariation')
@@ -31,6 +34,29 @@ class CheckoutController extends Controller
             // Filter selected items if provided in the request
             $selectedIds = $request->input('selected_items', []);
             if (!empty($selectedIds)) {
+                foreach ($selectedIds as $id) {
+                    if (isset($allCart[$id])) {
+                        $cart[$id] = $allCart[$id];
+                    }
+                }
+            } else {
+                $cart = $allCart;
+            }
+            
+            $isBuyNow = false;
+        }
+
+        \Log::info('Checkout method', [
+            'cart' => $cart,
+            'is_buy_now' => $isBuyNow,
+            'request_all' => $request->all()
+        ]);
+
+        if (empty($cart)) {
+            return redirect()->route('cart')->with('error', 'Your cart is empty or no items were selected.');
+        }
+
+        // ✅ Use filtered cart to calculate total
                 $cartItems = $cartItems->whereIn('id', $selectedIds);
             }
 
@@ -79,9 +105,116 @@ class CheckoutController extends Controller
         // Get all delivery areas for the dropdown
         $deliveryAreas = DeliveryArea::all();
 
-        return view('checkout', compact('cart', 'totalPrice', 'deliveryFee', 'rushOrderFee', 'deliveryAreas'));
+        return view('checkout', compact('cart', 'totalPrice', 'deliveryFee', 'rushOrderFee', 'deliveryAreas', 'isBuyNow'));
     }
 
+    /**
+     * Place an order specifically from the cart
+     */
+    public function placeCartOrder(Request $request)
+    {
+        // Log all data to debug
+        \Log::info('placeCartOrder method called', [
+            'request_data' => $request->all(),
+            'session_cart' => session()->get('cart'),
+        ]);
+
+        // Basic validation
+        $validated = $request->validate([
+            'full_name' => 'required|string',
+            'phone_number' => 'required|string',
+            'delivery_area_id' => 'required',
+            'shipping_address' => 'required|string',
+            'payment_method' => 'required|in:gcash,COD,GCash',
+        ]);
+        
+        // Get cart data directly from session
+        $cart = session()->get('cart', []);
+        
+        if (empty($cart)) {
+            \Log::error('Cart is empty in placeCartOrder');
+            return redirect()->route('cart')->with('error', 'Your cart is empty.');
+        }
+        
+        \Log::info('Cart contains items', ['cart_count' => count($cart)]);
+        
+        // Calculate totals
+        $totalPrice = array_reduce($cart, function ($carry, $item) {
+            return $carry + ($item['price'] * $item['quantity']);
+        }, 0);
+        
+        $area = DeliveryArea::find($validated['delivery_area_id']);
+        $deliveryFee = $area ? $area->delivery_fee : 0;
+        $rushOrderFee = $request->has('rush_order') ? 50 : 0;
+        
+        // Calculate final total
+        $totalPrice += $deliveryFee + $rushOrderFee;
+        
+        try {
+            // Create a new order
+            $order = new Order();
+            $order->user_id = auth()->id();
+            $order->full_name = $validated['full_name'];
+            $order->phone_number = $validated['phone_number'];
+            $order->delivery_area_id = $validated['delivery_area_id'];
+            $order->shipping_address = $validated['shipping_address'];
+            $order->landmark = $request->landmark;
+            $order->total_price = $totalPrice;
+            $order->delivery_fee = $deliveryFee;
+            $order->rush_order_fee = $rushOrderFee;
+            $order->status = 'Pending';
+            $order->payment_method = $validated['payment_method'];
+            $order->payment_status = 'Pending';
+            $order->is_rush = $request->has('is_rush') ? true : false;
+            
+            // Handle is_default
+            $order->is_default = false;
+            $order->save();
+            
+            \Log::info('Order created', ['order_id' => $order->id]);
+            
+            // Create order items
+            foreach ($cart as $productId => $item) {
+                $orderItem = new OrderItem();
+                $orderItem->order_id = $order->id;
+                $orderItem->product_id = $item['product_id'] ?? $productId;
+                $orderItem->price = $item['price'];
+                $orderItem->quantity = $item['quantity'];
+                
+                if (isset($item['variation_id'])) {
+                    $orderItem->variation_id = $item['variation_id'];
+                }
+                
+                $orderItem->save();
+                \Log::info('Order item created', ['order_item_id' => $orderItem->id]);
+            }
+            
+            // Clear the cart
+            session()->forget('cart');
+            
+            // Handle payment method
+            if (strtolower($validated['payment_method']) == 'gcash') {
+                \Log::info('Processing payment with GCash');
+                return redirect()->route('payment.process', ['order_id' => $order->id]);
+            }
+            
+            // For COD, redirect to success
+            \Log::info('Processing COD order, redirecting to success page');
+            return redirect()->route('order.success', ['order_id' => $order->id]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error in placeCartOrder', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('cart')->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Legacy placeOrder method - kept for compatibility but not used for cart checkout anymore
+     */
     public function placeOrder(Request $request)
     {
         $validated = $request->validate([
@@ -182,7 +315,39 @@ class CheckoutController extends Controller
         // Redirect to success page for COD or other payment methods
         return redirect()->route('order.success', ['order_id' => $order->id]);
     }
-
+    public function downloadReceipt($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        $orderItems = OrderItem::where('order_id', $orderId)->get();
+        
+        // Load product details for display
+        foreach ($orderItems as $item) {
+            // Load product information
+            $item->product = Product::find($item->product_id);
+            
+            // Load variation information if available
+            if ($item->variation_id) {
+                $item->variation = ProductVariation::find($item->variation_id);
+            }
+        }
+        
+        // Check if user is authorized to view this receipt (if not an admin)
+        if (auth()->id() != $order->user_id && !(auth()->user() && auth()->user()->is_admin)) {
+            return redirect()->route('home')->with('error', 'You are not authorized to view this receipt.');
+        }
+        
+        // Set current time for the receipt
+        $currentTime = Carbon::now('Asia/Manila');
+        
+        // Generate the receipt PDF
+        $pdf = PDF::loadView('order.receipt-pdf', [
+            'order' => $order,
+            'orderItems' => $orderItems,
+            'currentTime' => $currentTime
+        ]);
+        
+        return $pdf->download('Crafts-N-Wraps-Order-'.$order->id.'-Receipt.pdf');
+    }
     public function orderSuccess($orderId)
     {
         $order = Order::findOrFail($orderId);
@@ -231,111 +396,107 @@ class CheckoutController extends Controller
 
 
     /**
- * Process a Buy Now order directly.
- * This is a simplified version that avoids all the complex logic.
- */
-public function processBuyNow(Request $request)
-{
-    \Log::info('processBuyNow called', ['request' => $request->all()]);
-    
-    // Basic validation
-    $validated = $request->validate([
-        'full_name' => 'required|string',
-        'phone_number' => 'required|string',
-        'delivery_area_id' => 'required',
-        'shipping_address' => 'required|string',
-        'payment_method' => 'required',
-    ]);
-    
-    // Get the buy now item
-    $buyNowItem = session()->get('buy_now_item', []);
-    
-    if (empty($buyNowItem)) {
-        \Log::error('Buy Now item not found in session');
-        return redirect()->route('cart')->with('error', 'Product information not found');
-    }
-    
-    \Log::info('Buy Now Item found', ['item' => $buyNowItem]);
-    
-    // Get the first item (there should be only one in buy_now_item)
-    $item = reset($buyNowItem);
-    $productId = key($buyNowItem);
-    
-    // Calculate totals
-    $price = $item['price'] * $item['quantity'];
-    $area = DeliveryArea::find($validated['delivery_area_id']);
-    $deliveryFee = $area ? $area->delivery_fee : 0;
-    $rushOrderFee = $request->has('rush_order') ? 50 : 0;
-    $totalPrice = $price + $deliveryFee + $rushOrderFee;
-    
-    \Log::info('Order details', [
-        'productId' => $productId,
-        'price' => $price,
-        'deliveryFee' => $deliveryFee,
-        'rushOrderFee' => $rushOrderFee,
-        'totalPrice' => $totalPrice
-    ]);
-    
-    try {
-        // Create a new order with minimal fields
-        $order = new Order;
-        $order->user_id = auth()->id();
-        $order->full_name = $validated['full_name'];
-        $order->phone_number = $validated['phone_number'];
-        $order->delivery_area_id = $validated['delivery_area_id'];
-        $order->shipping_address = $validated['shipping_address'];
-        $order->landmark = $request->landmark;
-        $order->total_price = $totalPrice;
-        $order->delivery_fee = $deliveryFee;
-        $order->rush_order_fee = $rushOrderFee;
-        $order->status = 'Pending';
-        $order->payment_method = $validated['payment_method'];
-        $order->payment_status = 'Pending';
-        $order->is_rush = $request->has('is_rush') ? true : false;
-        // Important: SKIP setting is_default for now
-        $order->save();
+     * Process a Buy Now order directly.
+     * This is a simplified version that avoids all the complex logic.
+     */
+    public function processBuyNow(Request $request)
+    {
+        \Log::info('processBuyNow called', ['request' => $request->all()]);
         
-        \Log::info('Order created', ['order_id' => $order->id]);
-        
-        // Now create the order item
-        $orderItem = new OrderItem;
-        $orderItem->order_id = $order->id;
-        $orderItem->product_id = $item['product_id'] ?? $productId;
-        $orderItem->price = $item['price'];
-        $orderItem->quantity = $item['quantity'];
-        
-        if (isset($item['variation_id'])) {
-            $orderItem->variation_id = $item['variation_id'];
-        }
-        
-        $orderItem->save();
-        
-        \Log::info('Order item created', ['order_item_id' => $orderItem->id]);
-        
-        // Clear the buy now item from session
-        session()->forget('buy_now_item');
-        
-        // Handle payment method
-        if (strtolower($validated['payment_method']) == 'gcash') {
-            \Log::info('Processing payment with GCash');
-            return redirect()->route('payment.process', ['order_id' => $order->id]);
-        }
-        
-        // For COD, redirect to success
-        \Log::info('Processing COD order, redirecting to success page');
-        return redirect()->route('order.success', ['order_id' => $order->id]);
-        
-    } catch (\Exception $e) {
-        \Log::error('Error in processBuyNow', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+        // Basic validation
+        $validated = $request->validate([
+            'full_name' => 'required|string',
+            'phone_number' => 'required|string',
+            'delivery_area_id' => 'required',
+            'shipping_address' => 'required|string',
+            'payment_method' => 'required',
         ]);
         
-        return back()->with('error', 'An error occurred: ' . $e->getMessage());
+        // Get the buy now item
+        $buyNowItem = session()->get('buy_now_item', []);
+        
+        if (empty($buyNowItem)) {
+            \Log::error('Buy Now item not found in session');
+            return redirect()->route('cart')->with('error', 'Product information not found');
+        }
+        
+        \Log::info('Buy Now Item found', ['item' => $buyNowItem]);
+        
+        // Get the first item (there should be only one in buy_now_item)
+        $item = reset($buyNowItem);
+        $productId = key($buyNowItem);
+        
+        // Calculate totals
+        $price = $item['price'] * $item['quantity'];
+        $area = DeliveryArea::find($validated['delivery_area_id']);
+        $deliveryFee = $area ? $area->delivery_fee : 0;
+        $rushOrderFee = $request->has('rush_order') ? 50 : 0;
+        $totalPrice = $price + $deliveryFee + $rushOrderFee;
+        
+        \Log::info('Order details', [
+            'productId' => $productId,
+            'price' => $price,
+            'deliveryFee' => $deliveryFee,
+            'rushOrderFee' => $rushOrderFee,
+            'totalPrice' => $totalPrice
+        ]);
+        
+        try {
+            // Create a new order with minimal fields
+            $order = new Order;
+            $order->user_id = auth()->id();
+            $order->full_name = $validated['full_name'];
+            $order->phone_number = $validated['phone_number'];
+            $order->delivery_area_id = $validated['delivery_area_id'];
+            $order->shipping_address = $validated['shipping_address'];
+            $order->landmark = $request->landmark;
+            $order->total_price = $totalPrice;
+            $order->delivery_fee = $deliveryFee;
+            $order->rush_order_fee = $rushOrderFee;
+            $order->status = 'Pending';
+            $order->payment_method = $validated['payment_method'];
+            $order->payment_status = 'Pending';
+            $order->is_rush = $request->has('is_rush') ? true : false;
+            // Important: SKIP setting is_default for now
+            $order->save();
+            
+            \Log::info('Order created', ['order_id' => $order->id]);
+            
+            // Now create the order item
+            $orderItem = new OrderItem;
+            $orderItem->order_id = $order->id;
+            $orderItem->product_id = $item['product_id'] ?? $productId;
+            $orderItem->price = $item['price'];
+            $orderItem->quantity = $item['quantity'];
+            
+            if (isset($item['variation_id'])) {
+                $orderItem->variation_id = $item['variation_id'];
+            }
+            
+            $orderItem->save();
+            
+            \Log::info('Order item created', ['order_item_id' => $orderItem->id]);
+            
+            // Clear the buy now item from session
+            session()->forget('buy_now_item');
+            
+            // Handle payment method
+            if (strtolower($validated['payment_method']) == 'gcash') {
+                \Log::info('Processing payment with GCash');
+                return redirect()->route('payment.process', ['order_id' => $order->id]);
+            }
+            
+            // For COD, redirect to success
+            \Log::info('Processing COD order, redirecting to success page');
+            return redirect()->route('order.success', ['order_id' => $order->id]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error in processBuyNow', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
     }
 }
-
-
-}
-
-

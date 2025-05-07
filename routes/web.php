@@ -234,3 +234,8 @@ Route::post('/buy-now/checkout', [CheckoutController::class, 'processBuyNow'])->
 // Add this to web.php
 Route::get('/payment/process/{order_id}', [PaymentController::class, 'processPayment'])->name('payment.process');
 
+
+// Add this new route for cart checkout
+Route::post('/cart/checkout', [CheckoutController::class, 'placeCartOrder'])->name('cart.checkout');
+
+Route::get('/order/receipt/{orderId}', [CheckoutController::class, 'downloadReceipt'])->name('order.download-receipt');

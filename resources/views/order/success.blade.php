@@ -86,7 +86,10 @@
                     @endif
 
                     <div class="text-center mt-4">
-                        <a href="{{ route('home') }}" class="btn btn-primary">Continue Shopping</a>
+                        <a href="{{ url('/products') }}" class="btn btn-primary">Continue Shopping</a>
+                        <a href="{{ route('order.download-receipt', ['orderId' => $order->id]) }}" class="btn btn-success">
+                            <i class="fas fa-download me-1"></i> Download Receipt
+                        </a>
                     </div>
                 </div>
             </div>
