@@ -36,6 +36,7 @@ Route::get('/privacy-policy', function () {
 Route::get('/terms-conditions', function () {
     return view('terms_conditions');
 })->name('terms-conditions');
+
 // ✅ Authentication Routes
 Auth::routes(['verify' => true]);
 
