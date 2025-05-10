@@ -1,111 +1,112 @@
 @extends('layouts.app')
-
 @section('content')
 <div class="container py-5">
-    <h2 class="mb-4 text-center">Checkout</h2>
-
-    <div class="row g-4">
-        {{-- Left Column: Shipping Form --}}
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-body">
-                    <form action="{{ route('processBuyNow') }}" method="POST">
-                        @csrf
-
-                        {{-- Full Name Field --}}
-                        <h5 class="mb-3">Shipping Information</h5>
-                        <div class="mb-3">
-                            <label for="full_name" class="form-label">Full Name</label>
-                            <input type="text" id="full_name" name="full_name" class="form-control" required>
-                        </div>
-
-                        {{-- Phone Number --}}
-                        <div class="mb-3">
-                            <label for="phone_number" class="form-label">Phone Number</label>
-                            <input type="text" id="phone_number" name="phone_number" class="form-control" required>
-                        </div>
-
-                        {{-- Delivery Area --}}
-                        <div class="mb-3">
-                            <label for="delivery_area_id" class="form-label">Delivery Area</label>
-                            <select id="delivery_area_id" name="delivery_area_id" class="form-select" required>
-                                <option value="">-- Choose an Area --</option>
-                                <option value="1" data-fee="50">Sto. Domingo - ₱50</option>
-                                <option value="2" data-fee="100">Tabaco - ₱100</option>
-                                <option value="3" data-fee="80">Bacacay - ₱80</option>
-                                <option value="4" data-fee="150">Legazpi - ₱150</option>
-                                <option value="5" data-fee="200">Daraga - ₱200</option>
-                            </select>
-                        </div>
-
-                        {{-- Shipping Address --}}
-                        <div class="mb-3">
-                            <label for="shipping_address" class="form-label">Shipping Address</label>
-                            <input type="text" id="shipping_address" name="shipping_address" class="form-control" required>
-                            <small class="form-text text-muted">
-                                Please enter your complete shipping address, including the street name, barangay, and city/municipality. 
-                                Example: "123 Main St, Barangay 7, Legazpi City, Albay."
-                            </small>
-                        </div>
-
-                        {{-- Landmark (Optional) --}}
-                        <div class="mb-3">
-                            <label for="landmark" class="form-label">Landmark (Optional)</label>
-                            <input type="text" id="landmark" name="landmark" class="form-control">
-                            <small class="form-text text-muted">
-                                If applicable, you can provide a nearby landmark to help with delivery. Example: "Near the church" or "Beside the mall."
-                            </small>
-                        </div>
-
-                        {{-- Set Default Address --}}
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" id="is_default" name="is_default">
-                            <label class="form-check-label" for="is_default">
-                                Set this as my default address
-                            </label>
-                        </div>
-
-                        {{-- Payment Method Section --}}
-                        <h5 class="mb-3">Payment Method</h5>
-                        <div class="mb-4">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="payment_method" id="payment_gcash" value="gcash" required>
-                                <label class="form-check-label d-flex align-items-center" for="payment_gcash">
-                                    <img src="{{ asset('images/gcash-seeklogo.png') }}" alt="GCash" height="30" class="me-2">
-                                    GCash (via Xendit)
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment_method" id="payment_cod" value="COD" required>
-                                <label class="form-check-label d-flex align-items-center" for="payment_cod">
-                                <img src="{{ asset('images/cod.png') }}" alt="COD" height="30" class="me-2">
-                                    Cash on Delivery (COD)
-                                </label>
-                            </div>
-                        </div>
-
-                        {{-- Rush Order --}}
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" id="rush_order" name="rush_order">
-                            <label class="form-check-label" for="rush_order">
-                                Rush Order (+₱50)
-                            </label>
-                        </div>
-
-                        {{-- Hidden Inputs --}}
-                        <input type="hidden" name="total_price" id="final_total_price">
-                        <input type="hidden" name="delivery_fee" id="final_delivery_fee">
-                        <input type="hidden" name="final_rush_order" id="final_rush_order" value="0">
-
-                        {{-- Submit Button --}}
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-success btn-lg w-100">
-                                <i class="bi bi-check-circle-fill"></i> Complete Purchase
-                            </button>
-                        </div>
-                    </form>
+    <h2 class="text-center mb-4">Checkout</h2>
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+    <div class="row">
+        {{-- Left Column: Checkout Form --}}
+        <div class="col-md-8">
+            <!-- Use different form action based on checkout type -->
+            @if(isset($isBuyNow) && $isBuyNow)
+            <form action="{{ route('processBuyNow') }}" method="POST">
+            @else
+                <form action="{{ route('cart.checkout') }}" method="POST">
+            @endif
+                @csrf
+                {{-- Full Name Field --}}
+                <h5 class="mb-3">Shipping Information</h5>
+                <div class="mb-3">
+                    <label for="full_name" class="form-label">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" class="form-control" required>
                 </div>
-            </div>
+
+                {{-- Phone Number --}}
+                <div class="mb-3">
+                    <label for="phone_number" class="form-label">Phone Number</label>
+                    <input type="text" id="phone_number" name="phone_number" class="form-control" required>
+                </div>
+
+                {{-- Delivery Area --}}
+                <div class="mb-3">
+                    <label for="delivery_area_id" class="form-label">Delivery Area</label>
+                    <select id="delivery_area_id" name="delivery_area_id" class="form-select" required>
+                        <option value="">-- Choose an Area --</option>
+                        <option value="1" data-fee="50">Sto. Domingo - ₱50</option>
+                        <option value="2" data-fee="100">Tabaco - ₱100</option>
+                        <option value="3" data-fee="80">Bacacay - ₱80</option>
+                        <option value="4" data-fee="150">Legazpi - ₱150</option>
+                        <option value="5" data-fee="200">Daraga - ₱200</option>
+                    </select>
+                </div>
+
+                {{-- Shipping Address --}}
+                <div class="mb-3">
+                    <label for="shipping_address" class="form-label">Shipping Address</label>
+                    <input type="text" id="shipping_address" name="shipping_address" class="form-control" required>
+                    <small class="form-text text-muted">
+                        Please enter your complete shipping address, including the street name, barangay, and city/municipality. 
+                        Example: "123 Main St, Barangay 7, Legazpi City, Albay."
+                    </small>
+                </div>
+
+                {{-- Landmark (Optional) --}}
+                <div class="mb-3">
+                    <label for="landmark" class="form-label">Landmark (Optional)</label>
+                    <input type="text" id="landmark" name="landmark" class="form-control">
+                    <small class="form-text text-muted">
+                        If applicable, you can provide a nearby landmark to help with delivery. Example: "Near the church" or "Beside the mall."
+                    </small>
+                </div>
+
+                {{-- Set Default Address --}}
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="is_default" name="is_default">
+                    <label class="form-check-label" for="is_default">
+                        Set this as my default address
+                    </label>
+                </div>
+
+                {{-- Payment Method Section --}}
+                <h5 class="mb-3">Payment Method</h5>
+                <div class="mb-4">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="payment_method" id="payment_gcash" value="gcash" required>
+                        <label class="form-check-label d-flex align-items-center" for="payment_gcash">
+                            <img src="{{ asset('images/gcash-seeklogo.png') }}" alt="GCash" height="30" class="me-2">
+                            GCash (via Xendit)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="payment_method" id="payment_cod" value="COD" required>
+                        <label class="form-check-label d-flex align-items-center" for="payment_cod">
+                        <img src="{{ asset('images/cod.png') }}" alt="COD" height="30" class="me-2">
+                            Cash on Delivery (COD)
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Rush Order --}}
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="rush_order" name="rush_order">
+                    <label class="form-check-label" for="rush_order">
+                        Rush Order (+₱50)
+                    </label>
+                </div>
+
+                {{-- Hidden Inputs --}}
+                <input type="hidden" name="total_price" id="final_total_price">
+                <input type="hidden" name="delivery_fee" id="final_delivery_fee">
+                <input type="hidden" name="final_rush_order" id="final_rush_order" value="0">
+
+                {{-- Submit Button --}}
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success btn-lg w-100">
+                        <i class="bi bi-check-circle-fill"></i> Complete Purchase
+                    </button>
+                </div>
+            </form>
         </div>
 
         {{-- Right Column: Order Summary --}}
@@ -143,9 +144,8 @@
                             @php $totalPrice += $item['price'] * $item['quantity']; @endphp
                         </div>
                     </div>
-                @endforeach
+                    @endforeach
 
-                    
                     <hr>
 
                     <ul class="list-group mb-3">

@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.2
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Mar 22, 2025 at 10:19 PM
--- Server version: 8.4.3
--- PHP Version: 8.3.16
+-- Host: 127.0.0.1
+-- Generation Time: Mar 28, 2025 at 09:26 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,16 +28,16 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `products` (
-  `id` bigint UNSIGNED NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text NOT NULL,
   `price` decimal(10,2) NOT NULL,
-  `stock` int NOT NULL,
-  `availability` tinyint(1) NOT NULL DEFAULT '1',
-  `image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `stock` int(11) NOT NULL,
+  `availability` tinyint(1) NOT NULL DEFAULT 1,
+  `image` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `category_id` int NOT NULL
+  `category_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -45,8 +45,8 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `description`, `price`, `stock`, `availability`, `image`, `created_at`, `updated_at`, `category_id`) VALUES
-(2, 'one', 'A beautiful bouquet of fresh roses.', 500.00, 10, 1, 'souvenir1', '2025-03-22 06:29:29', '2025-03-22 06:29:29', 1),
-(3, 'two', 'Bright sunflowers to brighten your day.', 450.00, 8, 1, 'souvenir2', '2025-03-22 06:29:30', '2025-03-22 06:29:30', 1),
+(2, 'one', 'A beautiful bouquet of fresh roses.', 500.00, 1, 1, 'souvenir1', '2025-03-22 06:29:29', '2025-03-27 23:50:28', 1),
+(3, 'two', 'Bright sunflowers to brighten your day.', 450.00, 1, 1, 'souvenir2', '2025-03-22 06:29:30', '2025-03-27 23:47:33', 1),
 (4, 'three', 'A colorful bouquet of fresh tulips.', 600.00, 5, 1, 'souvenir3', '2025-03-22 06:29:30', '2025-03-22 06:29:30', 1),
 (5, 'four', 'An elegant arrangement of white lilies.', 700.00, 7, 1, 'souvenir4', '2025-03-22 06:29:30', '2025-03-22 06:29:30', 1),
 (6, 'five', 'A charming basket filled with mixed fresh flowers.', 550.00, 12, 1, 'souvenir5', '2025-03-22 06:29:30', '2025-03-22 06:29:30', 1),
@@ -90,7 +90,9 @@ INSERT INTO `products` (`id`, `name`, `description`, `price`, `stock`, `availabi
 (45, 'Sash & Bouquet White & Gold Edition', 'An elegant white and gold combination for a sophisticated touch.', 480.00, 9, 1, 'sash-bouquet-4', NULL, NULL, 3),
 (46, 'Sash & Bouquet Classic Gold Edition', 'A timeless gold-themed sash and bouquet for a stylish celebration.', 499.00, 7, 1, 'sash-bouquet-5', NULL, NULL, 3),
 (47, 'Sash & Bouquet Pink Edition', 'A soft pink-colored set that exudes charm and elegance.', 430.00, 10, 1, 'sash-bouquet-1', NULL, NULL, 3),
-(48, 'Sash & Bouquet Red Edition', 'A vibrant red-themed sash and bouquet for bold and beautiful moments.', 420.00, 10, 1, 'sash-bouquet-2', NULL, NULL, 3);
+(48, 'Sash & Bouquet Red Edition', 'A vibrant red-themed sash and bouquet for bold and beautiful moments.', 420.00, 1, 1, 'sash-bouquet-2', NULL, '2025-03-28 00:05:31', 3),
+(49, 'aiah', 'magayon', 1000.00, 1, 1, '1743148660_1742626575_aiah.jpg', '2025-03-27 23:57:40', '2025-03-28 00:11:48', 6),
+(50, 'aiah', 'magayon', 1000.00, 50, 1, '1743148699_1742626575_aiah.jpg', '2025-03-27 23:58:19', '2025-03-27 23:58:19', 6);
 
 --
 -- Indexes for dumped tables
@@ -110,7 +112,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

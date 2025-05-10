@@ -160,5 +160,44 @@
             document.getElementById('password-form').style.display = 'block';
         });
     </script>
- 
+
+<!-- Purchase History Card -->
+<div class="card shadow-sm p-4 mt-4" style="background-color: #FFFFFF; border-radius: 10px;">
+    <h2 class="mb-4">Purchase History</h2>
+
+    @if($user->orders->count() > 0)
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($user->orders as $index => $order)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $order->id }}</td>
+                            <td>{{ $order->created_at->format('M d, Y') }}</td>
+                            <td>₱{{ number_format($order->total_amount, 2) }}</td>
+                            <td>{{ ucfirst($order->status) }}</td>
+                            <td>
+                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary">View</a>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @else
+        <p>No purchase history found.</p>
+    @endif
+</div>
+
 @endsection
+

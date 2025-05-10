@@ -1,5 +1,5 @@
 <?php
-
+//C:\Users\angela\E-Com-Project\database\migrations\2025_04_03_205836_create_orders_table.php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

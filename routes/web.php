@@ -18,6 +18,7 @@ use App\Models\ProductVariation;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\PaymentController;
+use App\Models\User;
 
 Auth::routes(['verify' => true]);
 
@@ -230,8 +231,13 @@ Route::get('/payment/callback', [PaymentController::class, 'handleCallback'])->n
    // Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('placeOrder');
 
 // New route specifically for Buy Now checkout
-Route::middleware(['auth', 'verified'])->post('/buy-now', [CheckoutController::class, 'buyNow'])->name('buy-now');
+Route::post('/buy-now/checkout', [CheckoutController::class, 'processBuyNow'])->name('processBuyNow')->middleware('auth');
 
 // Add this to web.php
 Route::get('/payment/process/{order_id}', [PaymentController::class, 'processPayment'])->name('payment.process');
 
+
+// Add this new route for cart checkout
+Route::post('/cart/checkout', [CheckoutController::class, 'placeCartOrder'])->name('cart.checkout');
+
+Route::get('/order/receipt/{orderId}', [CheckoutController::class, 'downloadReceipt'])->name('order.download-receipt');
