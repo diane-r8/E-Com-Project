@@ -26,7 +26,7 @@ class Order extends Model
 
     public function deliveryArea()
     {
-    return $this->belongsTo(DeliveryArea::class);
+        return $this->belongsTo(DeliveryArea::class);
     }
-
+    
 }

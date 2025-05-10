@@ -9,6 +9,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\SellerCartController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Middleware\SellerMiddleware;
@@ -18,7 +19,10 @@ use App\Models\ProductVariation;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\PaymentController;
-use App\Models\User;
+use App\Http\Controllers\SellerDashboardController;
+use App\Http\Controllers\OrderController;
+
+
 
 Auth::routes(['verify' => true]);
 
@@ -176,6 +180,8 @@ Route::post('/social-verify-otp', [App\Http\Controllers\SocialAuthController::cl
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::match(['get', 'post'], '/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    // Route for seller's cart
+    Route::get('/seller/cart', [SellerCartController::class, 'show'])->name('seller.cart');
     Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
     Route::post('/cart/update/{id}', [CartController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/remove-multiple', [CartController::class, 'removeMultiple'])->name('cart.removeMultiple');
@@ -190,7 +196,7 @@ Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback']
 
 // Checkout Routes
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout'); // Shows the checkout page
+    Route::get('/cart/checkout', [CheckoutController::class, 'checkout'])->name('cart.checkout'); // Shows the checkout page
     Route::post('/placeOrder', [CheckoutController::class, 'placeOrder'])->name('placeOrder'); // Handles checkout form submission
 });
 
@@ -236,8 +242,12 @@ Route::post('/buy-now/checkout', [CheckoutController::class, 'processBuyNow'])->
 // Add this to web.php
 Route::get('/payment/process/{order_id}', [PaymentController::class, 'processPayment'])->name('payment.process');
 
+//Seller Dashboard
+Route::get('/seller/dashboard', [SellerDashboardController::class, 'index'])->name('seller.dashboard');
 
-// Add this new route for cart checkout
-Route::post('/cart/checkout', [CheckoutController::class, 'placeCartOrder'])->name('cart.checkout');
 
-Route::get('/order/receipt/{orderId}', [CheckoutController::class, 'downloadReceipt'])->name('order.download-receipt');
+//ORDERS (dashboard)
+// Update order status
+Route::post('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+// Delete an order
+Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
