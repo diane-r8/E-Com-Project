@@ -71,27 +71,28 @@
             </form>
         </div>
     </div>
-
-    <!-- JavaScript for Adding Variations Dynamically -->
-    <script>
-        let variationCount = 1;
-
-        function addVariation() {
-            let container = document.getElementById('variations-container');
-            let newVariation = document.createElement('div');
-            newVariation.classList.add('variation', 'd-flex', 'gap-2', 'mb-2');
-            newVariation.innerHTML = `
-                <input type="text" name="variations[${variationCount}][name]" class="form-control" placeholder="Size/Color" required>
-                <input type="number" name="variations[${variationCount}][price]" class="form-control" placeholder="Price">
-                <input type="number" name="variations[${variationCount}][stock]" class="form-control" placeholder="Stock" required>
-                <button type="button" class="btn btn-danger remove-variation" onclick="removeVariation(this)">X</button>
-            `;
-            container.appendChild(newVariation);
-            variationCount++;
-        }
-
-        function removeVariation(button) {
-            button.parentElement.remove();
-        }
-    </script>
 @endsection
+
+@push('scripts')
+<script>
+    let variationCount = 1;
+
+    function addVariation() {
+        let container = document.getElementById('variations-container');
+        let newVariation = document.createElement('div');
+        newVariation.classList.add('variation', 'd-flex', 'gap-2', 'mb-2');
+        newVariation.innerHTML = `
+            <input type="text" name="variations[${variationCount}][name]" class="form-control" placeholder="Size/Color" required>
+            <input type="number" name="variations[${variationCount}][price]" class="form-control" placeholder="Price">
+            <input type="number" name="variations[${variationCount}][stock]" class="form-control" placeholder="Stock" required>
+            <button type="button" class="btn btn-danger remove-variation" onclick="removeVariation(this)">X</button>
+        `;
+        container.appendChild(newVariation);
+        variationCount++;
+    }
+
+    function removeVariation(button) {
+        button.parentElement.remove();
+    }
+</script>
+@endpush

@@ -1,5 +1,5 @@
 <?php
-//C:\Users\angela\E-Com-Project\database\migrations\2025_04_03_205836_create_orders_table.php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,7 +20,7 @@ return new class extends Migration
         $table->boolean('rush_order')->default(false);
         $table->decimal('total_price', 10, 2);
         $table->decimal('delivery_fee', 10, 2);
-        $table->enum('status', ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'])->default('Pending');
+        $table->enum('status', ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Received'])->default('Pending');//RIALYN
         $table->timestamps();
     });
 }

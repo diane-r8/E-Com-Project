@@ -70,7 +70,7 @@
 /* Shop now button styling */
 .shop-now-btn {
     padding: 10px 20px;
-    background-color: #5a6e9f; /* Customize the color */
+    background-color: #5D6E54; /* Updated to match contact-title color */
     color: white;
     font-size: 1.2rem;
     text-decoration: none;
@@ -79,7 +79,7 @@
 }
 
 .shop-now-btn:hover {
-    background-color: #3b4a71; /* Darker shade on hover */
+    background-color: #495C42; /* Darker shade of the green color */
 }
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -650,7 +650,7 @@ body {
     border: 1px solid #ccc;
     border-radius: 4px;
     margin-top: 5px;
-    box-sizing: border-box;  /* Ensures padding is included in the element’s total width */
+    box-sizing: border-box;  /* Ensures padding is included in the element's total width */
     font-family: 'Poppins', sans-serif; /* Ensure Poppins font is applied */
 }
 
@@ -791,7 +791,7 @@ body {
     border: 1px solid #ccc;
     border-radius: 4px;
     margin-top: 5px;
-    box-sizing: border-box;  /* Ensures padding is included in the element’s total width */
+    box-sizing: border-box;  /* Ensures padding is included in the element's total width */
 }
 
 /* Register Button Styling */
@@ -1203,6 +1203,210 @@ transition: background-color 0.3s ease; /* Smooth transition */
     transition: background-color 0.3s ease;
     box-sizing: border-box; /* Ensures padding doesn't affect the width */
     font-size: 16px; /* Set consistent font size */
+}
+
+/* Custom CSS for the entire application */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+/* General Styles */
+.text-primary {
+    color: #4e73df !important;
+}
+
+.bg-primary {
+    background-color: #4e73df !important;
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-primary:hover, 
+.btn-primary:focus {
+    background-color: #3a5fc7;
+    border-color: #3a5fc7;
+}
+
+.btn-outline-primary {
+    color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-outline-primary:hover, 
+.btn-outline-primary:focus {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+/* Seller Dashboard Specific Styles */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-weight: 600;
+}
+
+/* Status colors */
+.bg-pending, .bg-warning { background-color: #f6c23e !important; }
+.bg-processing, .bg-info { background-color: #36b9cc !important; }
+.bg-shipped, .bg-primary { background-color: #4e73df !important; }
+.bg-delivered, .bg-success { background-color: #1cc88a !important; }
+.bg-cancelled, .bg-danger { background-color: #e74a3b !important; }
+
+/* Table Styling */
+.table th {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(78, 115, 223, 0.05);
+}
+
+/* Badge Styling */
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.8em;
+}
+
+/* Form Control Styling */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 10px 15px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+}
+
+/* Modern Search Input */
+.modern-search {
+    border-radius: 50px;
+    padding-left: 40px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.search-container {
+    max-width: 300px;
+}
+
+/* Animation utilities */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Seller Dashboard Sidebar and Layout (Additional styles) */
+.list-group-item {
+    border-left: none;
+    border-right: none;
+}
+
+.list-group-item:first-child {
+    border-top: none;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(78, 115, 223, 0.1);
+    color: #4e73df;
+}
+
+.dropdown-item.active, 
+.dropdown-item:active {
+    background-color: #4e73df;
+}
+
+/* Loading indicators */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255,255,255,0.7);
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsive fixes */
+@media (max-width: 992px) {
+    .container-fluid {
+        padding: 15px !important;
+    }
+}
+
+/* Chat styles */
+.message-bubble {
+    border-radius: 15px;
+    max-width: 80%;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.text-start .message-bubble {
+    border-bottom-left-radius: 5px;
+}
+
+.text-end .message-bubble {
+    border-bottom-right-radius: 5px;
+}
+
+/* Animations for notifications */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
 }
 
 

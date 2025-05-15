@@ -21,7 +21,12 @@
                     <li class="nav-item">
                         <a class="nav-link {{ Request::is('seller/products') ? 'active' : '' }}" href="{{ route('seller.products') }}">Products</a>
                     </li>
-                  
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('seller/order_management') ? 'active' : '' }}" href="{{ route('seller.order_management') }}">Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('seller/chat') ? 'active' : '' }}" href="{{ route('seller.chat') }}">Chat Support</a>
+                    </li>
                 @else
                     <!-- General Navigation -->
                     <li class="nav-item">
@@ -47,7 +52,8 @@
         <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
     </div>
 </form>
-            <!-- Cart Icon with Item Count chagned -->
+
+            <!-- Cart Icon with Item Count -->
             @auth
           @php
               $cartCount = \App\Models\CartItem::where('user_id', auth()->id())->count();

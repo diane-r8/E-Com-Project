@@ -25,3 +25,4 @@ class SellerMiddleware
         return $next($request);
     }
 }
+

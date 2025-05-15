@@ -32,7 +32,7 @@
         <div class="cart-items shadow-xs">
         @foreach($cartItems as $item)
             <div class="cart-item d-flex align-items-center p-3 mb-3 rounded shadow-sm bg-white">
-                <input type="checkbox" class="product-checkbox me-3" name="selected_items[]" value="{{ 	$item->id }}" data-price="{{ $item->price * $item->quantity }}">
+                <input type="checkbox" class="product-checkbox me-3" name="selected_items[]" value="{{ $item->id }}" data-price="{{ $item->price * $item->quantity }}">
                 
                 @php
                 $imagePath = asset("images/default.png");
@@ -61,13 +61,13 @@
                     @endif
                     
                     <p class="fw-normal text-danger opacity-75 product-price mb-0">
-                        ₱{{ number_format(	$item->price ?? 0, 2) }}
+                        ₱{{ number_format($item->price ?? 0, 2) }}
                     </p>
                 </div>
                 
                 <div class="quantity-control d-flex align-items-center">
-                    <button type="button" class="btn btn-sm btn-outline-danger decrease-qty px-2 py-1" data-id="{{ 	$item->id }}">-</button>
-                    <span class="qty-text mx-2 fw-semibold" id="qty-{{ 	$item->id }}">{{ $item->quantity ?? 1 }}</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger decrease-qty px-2 py-1" data-id="{{ $item->id }}">-</button>
+                    <span class="qty-text mx-2 fw-semibold" id="qty-{{ $item->id }}">{{ $item->quantity ?? 1 }}</span>
                     <button type="button" class="btn btn-sm btn-outline-success increase-qty px-2 py-1" data-id="{{ $item->id }}">+</button>
                 </div>
             </div>
@@ -118,9 +118,15 @@
             .then(data => {
                 if (data.quantity !== undefined) {
                     qtyElement.innerText = data.quantity;
+                    
+                    // Update the checkbox data-price attribute with the new price based on quantity
+                    if (checkbox) {
+                        const unitPrice = parseFloat(data.price);
+                        checkbox.dataset.price = (unitPrice * data.quantity).toFixed(2);
+                    }
 
                     // Update the total price for the item immediately after quantity change
-                    updateTotal(); // This will now work correctly
+                    updateTotal();
                 }
             })
             .catch(error => console.error("Error updating cart:", error));
@@ -176,12 +182,9 @@
         let selectedItems = document.querySelectorAll(".product-checkbox:checked");
         
         selectedItems.forEach(checkbox => {
-            // Find the quantity and price from the corresponding cart item
-            let quantity = parseInt(document.getElementById(`qty-${checkbox.value}`).innerText);
+            // Get price directly from the data attribute which includes quantity
             let price = parseFloat(checkbox.dataset.price);
-            
-            // Total price for the selected item
-            total += (price * quantity);
+            total += price;
         });
 
         // Update the total price on the page
@@ -195,6 +198,19 @@
         let selectedIds = Array.from(selectedItems).map(checkbox => checkbox.value);
         document.getElementById("selected_items_input").value = selectedIds.join(',');
     }
+
+    // Checkout form submission - ensure only selected items are processed
+    document.getElementById("checkoutForm").addEventListener("submit", function(e) {
+        const selectedItems = document.querySelectorAll(".product-checkbox:checked");
+        if (selectedItems.length === 0) {
+            e.preventDefault();
+            alert("Please select at least one item to checkout.");
+            return false;
+        }
+        
+        // The selected_items_input was already updated in updateTotal
+        return true;
+    });
 
     // Update total and checkout button state on checkbox change
     document.querySelectorAll(".product-checkbox").forEach(checkbox => {

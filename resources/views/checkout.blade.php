@@ -99,6 +99,9 @@
                 <input type="hidden" name="total_price" id="final_total_price">
                 <input type="hidden" name="delivery_fee" id="final_delivery_fee">
                 <input type="hidden" name="final_rush_order" id="final_rush_order" value="0">
+                @if(isset($selectedItems))
+                <input type="hidden" name="selected_items" value="{{ $selectedItems }}">
+                @endif
 
                 {{-- Submit Button --}}
                 <div class="text-end">

@@ -52,13 +52,13 @@ class PaymentController extends Controller
         
         \Log::info('Payment payload prepared', ['payload' => $payload]);
         
-        // Save payment info to database if you have a Payment model
+        
         if (class_exists('App\Models\Payment')) {
             try {
                 // Save payment info to database
                 $payment = new Payment();
                 $payment->order_id = $order->id;
-                $payment->payment_method = 'GCash'; // Use 'GCash' instead of 'gcash' to match your enum
+                $payment->payment_method = 'GCash'; // 
 
                 // Only set status if the column exists
                 if (Schema::hasColumn('payments', 'status')) {
@@ -142,7 +142,7 @@ class PaymentController extends Controller
             return redirect()->back()->with('error', 'Exception during payment processing: ' . $e->getMessage());
         }
         
-        // If we get here, something went wrong
+        
         \Log::error('Reached end of createPayment method without returning - this should not happen');
         return redirect()->route('checkout')->with('error', 'Unable to process payment at this time. Please try again later.');
     }

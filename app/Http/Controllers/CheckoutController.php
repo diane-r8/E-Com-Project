@@ -27,20 +27,34 @@ class CheckoutController extends Controller
             $cart = session()->get('buy_now_item');
             $isBuyNow = true;
         } else {
-            // Retrieve cart items from the database
+            // Parse selected items - handle both string and array formats
+            $selectedIds = [];
+            if ($request->has('selected_items')) {
+                if (is_array($request->selected_items)) {
+                    $selectedIds = $request->selected_items;
+                } else {
+                    // If it's a comma-separated string
+                    $selectedIds = explode(',', $request->selected_items);
+                }
+                
+                // Filter out any empty values
+                $selectedIds = array_filter($selectedIds);
+            }
+            
+            // If no items selected, redirect back with error
+            if (empty($selectedIds)) {
+                return redirect()->route('cart')->with('error', 'Please select items to checkout.');
+            }
+            
+            // Retrieve cart items from the database - only the selected ones
             $cartItems = CartItem::with('product', 'productVariation')
                 ->where('user_id', $user->id)
+                ->whereIn('id', $selectedIds)
                 ->get();
-                
-            // Filter selected items if provided in the request
-            $selectedIds = $request->input('selected_items', []);
-            if (!empty($selectedIds)) {
-                $cartItems = $cartItems->whereIn('id', $selectedIds);
-            }
 
             // If no items, redirect to cart
             if ($cartItems->isEmpty()) {
-                return redirect()->route('cart')->with('error', 'Your cart is empty or no items were selected.');
+                return redirect()->route('cart')->with('error', 'Selected items not found in your cart.');
             }
             
             // Prepare the cart items in the same format as the session cart
@@ -90,8 +104,11 @@ class CheckoutController extends Controller
 
         // Get all delivery areas for the dropdown
         $deliveryAreas = DeliveryArea::all();
+        
+        // Pass the selected items to the view to maintain the selection
+        $selectedItems = implode(',', array_keys($cart));
 
-        return view('checkout', compact('cart', 'totalPrice', 'deliveryFee', 'rushOrderFee', 'deliveryAreas', 'isBuyNow'));
+        return view('checkout', compact('cart', 'totalPrice', 'deliveryFee', 'rushOrderFee', 'deliveryAreas', 'isBuyNow', 'selectedItems'));
     }
 
     /**
@@ -115,17 +132,30 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:gcash,COD,GCash',
         ]);
         
-        // Get cart data from the database
+        // Get selected items from the request
+        $selectedItemIds = [];
+        if ($request->has('selected_items')) {
+            $selectedItemsStr = $request->input('selected_items');
+            $selectedItemIds = explode(',', $selectedItemsStr);
+        }
+        
+        if (empty($selectedItemIds)) {
+            \Log::error('No selected items in placeCartOrder');
+            return redirect()->route('cart')->with('error', 'No items were selected for checkout.');
+        }
+        
+        // Get only the selected cart items from the database
         $cartItems = CartItem::with('product', 'productVariation')
             ->where('user_id', $user->id)
+            ->whereIn('id', $selectedItemIds)
             ->get();
         
         if ($cartItems->isEmpty()) {
-            \Log::error('Cart is empty in placeCartOrder');
-            return redirect()->route('cart')->with('error', 'Your cart is empty.');
+            \Log::error('Selected cart items not found in placeCartOrder');
+            return redirect()->route('cart')->with('error', 'Selected items not found in your cart.');
         }
         
-        \Log::info('Cart contains items', ['cart_count' => $cartItems->count()]);
+        \Log::info('Processing selected cart items', ['cart_count' => $cartItems->count()]);
         
         // Convert cart items to array format for processing
         $cart = [];
@@ -219,8 +249,12 @@ class CheckoutController extends Controller
                 $user->save();
             }
             
-            // Clear the cart from database
-            CartItem::where('user_id', $user->id)->delete();
+            // Only remove the selected items from the cart, not all items
+            CartItem::where('user_id', $user->id)
+                ->whereIn('id', $selectedItemIds)
+                ->delete();
+            
+            \Log::info('Removed selected items from cart', ['removed_items' => $selectedItemIds]);
             
             // Handle payment method
             if (strtolower($validated['payment_method']) == 'gcash') {

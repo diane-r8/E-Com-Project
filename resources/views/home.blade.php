@@ -11,7 +11,7 @@
         <!-- Right Section with Title and Shop Now Button -->
         <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center">
             <h1 class="hero-title">Your Go-To Shop For Handmade Bouquets, Gifts and Accessories</h1>
-            <a href="{{ url('/products') }}" class="btn btn-primary shop-now-btn">Shop Now</a>
+            <a href="{{ url('/products') }}" class="btn shop-now-btn">Shop Now</a>
         </div>
     </div>
 </div>
